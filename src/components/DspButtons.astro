@@ -4,9 +4,11 @@ import { getDspLinks } from '../lib/dsp';
 
 interface Props {
   links: Release['data']['links'] | Track['data']['links'];
+  releaseSlug: string;
+  trackSlug?: string;
 }
 
-const { links } = Astro.props;
+const { links, releaseSlug, trackSlug } = Astro.props;
 const dspLinks = getDspLinks(links);
 ---
 
@@ -19,9 +21,26 @@ const dspLinks = getDspLinks(links);
         rel="noopener noreferrer"
         class="dsp-btn"
         data-dsp={dsp.key}
+        data-release-slug={releaseSlug}
+        data-track-slug={trackSlug}
       >
         {dsp.label}
       </a>
     ))}
   </div>
 )}
+
+<script>
+  import { track } from '../lib/tracking';
+
+  document.addEventListener('click', (e) => {
+    const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[data-dsp]');
+    if (!anchor) return;
+    const dsp = anchor.dataset.dsp;
+    const releaseSlug = anchor.dataset.releaseSlug;
+    const trackSlug = anchor.dataset.trackSlug;
+    if (dsp && releaseSlug) {
+      track({ name: 'ClickDsp', params: { dsp, releaseSlug, trackSlug: trackSlug || undefined } });
+    }
+  });
+</script>

@@ -2,18 +2,88 @@
 interface Props {
   videoId: string;
   title?: string;
+  releaseSlug: string;
+  trackSlug?: string;
 }
 
-const { videoId, title = 'YouTube video player' } = Astro.props;
+const { videoId, title = 'YouTube video player', releaseSlug, trackSlug } = Astro.props;
 ---
 
-<div class="youtube-embed">
-  <iframe
-    src={`https://www.youtube-nocookie.com/embed/${videoId}`}
-    title={title}
-    loading="lazy"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen
-    referrerpolicy="strict-origin-when-cross-origin"
-  ></iframe>
-</div>
+<div class="youtube-embed" data-video-id={videoId} data-release-slug={releaseSlug} data-track-slug={trackSlug} data-title={title}></div>
+
+<script>
+  import { track } from '../lib/tracking';
+
+  interface YTPlayerEvent {
+    target: { getIframe: () => HTMLIFrameElement };
+    data: number;
+  }
+
+  interface YTPlayerOptions {
+    videoId: string;
+    host: string;
+    playerVars: Record<string, unknown>;
+    events: {
+      onReady: (event: YTPlayerEvent) => void;
+      onStateChange: (event: YTPlayerEvent) => void;
+    };
+  }
+
+  interface YTStatic {
+    Player: new (el: HTMLElement, opts: YTPlayerOptions) => unknown;
+    PlayerState: { PLAYING: number };
+  }
+
+  function getYT(): YTStatic {
+    return (window as unknown as { YT: YTStatic }).YT;
+  }
+
+  function initPlayers() {
+    const containers = document.querySelectorAll<HTMLElement>('.youtube-embed[data-video-id]');
+    containers.forEach((el) => {
+      if (el.dataset.initialized) return;
+      el.dataset.initialized = '1';
+      const videoId = el.dataset.videoId!;
+      const releaseSlug = el.dataset.releaseSlug!;
+      const trackSlug = el.dataset.trackSlug || undefined;
+      const title = el.dataset.title || 'YouTube video player';
+
+      const YT = getYT();
+      const Player = YT.Player;
+      new Player(el, {
+        videoId,
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { rel: 0, modestbranding: 1 },
+        events: {
+          onReady: (event: YTPlayerEvent) => {
+            event.target.getIframe().title = title;
+          },
+          onStateChange: (event: YTPlayerEvent) => {
+            if (event.data === getYT().PlayerState.PLAYING) {
+              const iframe = event.target.getIframe();
+              if (!iframe || iframe.dataset.fired) return;
+              iframe.dataset.fired = '1';
+              track({ name: 'VideoPlay', params: { releaseSlug, trackSlug } });
+            }
+          },
+        },
+      });
+    });
+  }
+
+  if (getYT()?.Player) {
+    initPlayers();
+  } else {
+    const w = window as unknown as { onYouTubeIframeAPIReady?: () => void };
+    const prev = w.onYouTubeIframeAPIReady;
+    w.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      initPlayers();
+    };
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  }
+</script>

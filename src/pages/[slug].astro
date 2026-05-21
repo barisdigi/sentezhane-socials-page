@@ -38,10 +38,10 @@ const formattedDate = release.data.releaseDate
       {formattedDate && <p class="release-meta">{formattedDate}</p>}
     </header>
 
-    <DspButtons links={release.data.links} />
+    <DspButtons links={release.data.links} releaseSlug={release.data.slug} />
 
     {release.data.youtubeVideoId && (
-      <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} />
+      <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} />
     )}
 
     {release.data.type === 'album' && tracks.length > 0 && (

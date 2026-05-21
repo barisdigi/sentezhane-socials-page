@@ -52,10 +52,10 @@ const artistName = artistEntry[0]?.data.name ?? 'Sentezhane';
       <p class="release-meta">Albüm: <a href={`/${album.data.slug}/`}>{albumTitle}</a></p>
     </header>
 
-    <DspButtons links={track.data.links} />
+    <DspButtons links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
 
     {track.data.youtubeVideoId && (
-      <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} />
+      <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
     )}
   </article>
 </BaseLayout>
