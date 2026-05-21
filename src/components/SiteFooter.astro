@@ -1,0 +1,27 @@
+---
+import { getEntry } from 'astro:content';
+const artist = await getEntry('artist', 'artist');
+const year = new Date().getFullYear();
+const name = artist?.data.name ?? 'Sentezhane';
+---
+
+<footer class="site-footer">
+  <p>&copy; {year} {name}</p>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: 2rem;
+    padding-inline: var(--content-padding);
+    border-top: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .site-footer p {
+    margin: 0;
+    max-width: var(--content-max);
+    margin-inline: auto;
+  }
+</style>

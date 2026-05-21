@@ -1,0 +1,39 @@
+---
+import { getEntry } from 'astro:content';
+const artist = await getEntry('artist', 'artist');
+const name = artist?.data.name ?? 'Sentezhane';
+---
+
+<header class="site-header">
+  <a href="/" class="site-header__logo">{name}</a>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding-block: 0.75rem;
+    padding-inline: var(--content-padding);
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .site-header__logo {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--fg);
+    text-decoration: none;
+    max-width: var(--content-max);
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  .site-header__logo:hover {
+    text-decoration: none;
+    color: var(--accent);
+  }
+</style>

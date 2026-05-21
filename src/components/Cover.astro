@@ -1,0 +1,33 @@
+---
+/**
+ * Astro's <Image /> optimizer requires src/assets/-style imports; CSV-driven
+ * public/ paths aren't statically analyzable. We keep Cover.astro simple
+ * (plain <img>) and set explicit width/height to prevent CLS. A future
+ * enhancement can move covers under src/assets/ and switch to <Image />.
+ */
+
+interface Props {
+  src: string;
+  alt: string;
+  width?: number;
+  loading?: 'lazy' | 'eager';
+  priority?: boolean;
+  sizes?: string;
+}
+
+const { src, alt, width = 1000, loading: loadingProp, priority, sizes } = Astro.props;
+const loading = priority ? 'eager' : (loadingProp ?? 'lazy');
+const fetchpriority = priority ? 'high' : undefined;
+---
+
+<img
+  src={src}
+  alt={alt}
+  width={width}
+  height={width}
+  loading={loading}
+  decoding="async"
+  fetchpriority={fetchpriority}
+  sizes={sizes}
+  class="cover"
+/>
