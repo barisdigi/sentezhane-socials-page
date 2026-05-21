@@ -1,4 +1,5 @@
 import type { ArtistData, Release } from './types';
+import { normalizeBioText } from './format';
 
 const SITE_URL = 'https://sentezhane.com';
 
@@ -19,7 +20,7 @@ export function buildMusicGroupJsonLd(artist: ArtistData): Record<string, unknow
     url: SITE_URL,
   };
 
-  if (artist.bio) ld.description = artist.bio;
+  if (artist.bio) ld.description = normalizeBioText(artist.bio);
   if (sameAs.length > 0) ld.sameAs = sameAs;
 
   return ld;

@@ -61,21 +61,27 @@ const jsonLdData = buildMusicRecordingJsonLd({
       { label: trackTitle },
     ]} />
 
-    {resolvedCover && (
-      <Cover src={resolvedCover} alt={trackTitle} width={600} priority />
-    )}
+    <div class="release__grid">
+      <div class="release__cover">
+        {resolvedCover && (
+          <Cover src={resolvedCover} alt={trackTitle} width={320} priority />
+        )}
+      </div>
 
-    <header>
-      <h1>{trackTitle}</h1>
-      <p class="release-meta">Albüm: <a href={`/${album.data.slug}/`}>{albumTitle}</a></p>
-    </header>
+      <div class="release__content">
+        <header>
+          <h1>{trackTitle}</h1>
+          <p class="release-meta">Albüm: <a href={`/${album.data.slug}/`}>{albumTitle}</a></p>
+        </header>
 
-    <DspButtons links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
+        <DspButtons links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
 
-    {track.data.youtubeVideoId && (
-      <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
-    )}
+        {track.data.youtubeVideoId && (
+          <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
+        )}
 
-    <ShareButtons url={abs('/' + album.data.slug + '/' + track.data.slug + '/')} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
+        <ShareButtons url={abs('/' + album.data.slug + '/' + track.data.slug + '/')} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
+      </div>
+    </div>
   </article>
 </BaseLayout>

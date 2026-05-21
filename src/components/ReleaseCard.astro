@@ -6,16 +6,18 @@ interface Props {
   title: string;
   type: 'album' | 'single';
   cover?: string;
+  trackCount?: number;
 }
 
-const { slug, title, type, cover } = Astro.props;
+const { slug, title, type, cover, trackCount } = Astro.props;
 const typeLabel = type === 'album' ? 'Albüm' : 'Single';
+const metaLine = type === 'album' && trackCount ? `${typeLabel} · ${trackCount} şarkı` : typeLabel;
 ---
 
 <a class="release-card" href={`/${slug}/`} data-type={type}>
   {cover && <Cover src={cover} alt={title} width={400} />}
   <div class="release-card__body">
     <h3>{title}</h3>
-    <span class="release-card__type">{typeLabel}</span>
+    <span class="release-card__type">{metaLine}</span>
   </div>
 </a>

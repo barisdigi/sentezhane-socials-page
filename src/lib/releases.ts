@@ -66,3 +66,13 @@ export async function getTrack(
     resolvedCover: track.data.cover ?? album.data.cover,
   };
 }
+
+export async function getReleaseTrackCounts(): Promise<Record<string, number>> {
+  const tracks = await getCollection('tracks');
+  const counts: Record<string, number> = {};
+  for (const t of tracks) {
+    const slug = t.data.albumSlug;
+    counts[slug] = (counts[slug] ?? 0) + 1;
+  }
+  return counts;
+}

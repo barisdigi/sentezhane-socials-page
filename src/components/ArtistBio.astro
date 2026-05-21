@@ -1,5 +1,13 @@
 ---
 import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import profile from '../assets/profile.png';
+import { normalizeBioText } from '../lib/format';
+import IconWebsite from './icons/IconWebsite.astro';
+import IconInstagram from './icons/IconInstagram.astro';
+import IconYouTube from './icons/IconYouTube.astro';
+import IconTikTok from './icons/IconTikTok.astro';
+import IconX from './icons/IconX.astro';
 
 const artist = await getEntry('artist', 'artist');
 
@@ -11,18 +19,31 @@ const platformLabels: Record<string, string> = {
   twitter: 'X',
 };
 
+const platformIcons: Record<string, typeof IconWebsite> = {
+  website: IconWebsite,
+  instagram: IconInstagram,
+  youtube: IconYouTube,
+  tiktok: IconTikTok,
+  twitter: IconX,
+};
+
 const order = ['website', 'instagram', 'youtube', 'tiktok', 'twitter'] as const;
 ---
 
 {artist && (
   <section class="artist-bio">
+    <Image src={profile} alt={artist.data.name} width={120} height={120} class="artist-bio__avatar" />
     <h2>{artist.data.name}</h2>
-    {artist.data.bio && <p>{artist.data.bio}</p>}
+    {artist.data.bio && <p>{normalizeBioText(artist.data.bio)}</p>}
     <nav class="artist-bio__links">
       {order.map((key) => {
         const url = artist.data.socials[key];
+        const Icon = platformIcons[key];
         return url ? (
-          <a href={url} target="_blank" rel="noopener noreferrer">{platformLabels[key]}</a>
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            {Icon && <Icon size={18} />}
+            <span>{platformLabels[key]}</span>
+          </a>
         ) : null;
       })}
     </nav>

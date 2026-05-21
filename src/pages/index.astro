@@ -6,10 +6,11 @@ import ReleaseGrid from '../components/ReleaseGrid.astro';
 import ArtistBio from '../components/ArtistBio.astro';
 import SeoMeta from '../components/SeoMeta.astro';
 import JsonLd from '../components/JsonLd.astro';
-import { getAllReleases } from '../lib/releases';
+import { getAllReleases, getReleaseTrackCounts } from '../lib/releases';
 import { buildMusicGroupJsonLd } from '../lib/seo';
 
 const releases = await getAllReleases();
+const trackCounts = await getReleaseTrackCounts();
 const artistEntries = await getCollection('artist');
 const artist = artistEntries[0];
 ---
@@ -23,7 +24,9 @@ const artist = artistEntries[0];
     <p class="hero-sub">Diskografi</p>
   </section>
 
-  <FilterChips />
-  <ReleaseGrid releases={releases} />
+  <div class="filter-chips--center">
+    <FilterChips />
+  </div>
+  <ReleaseGrid releases={releases} trackCounts={trackCounts} />
   <ArtistBio />
 </BaseLayout>

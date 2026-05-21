@@ -17,3 +17,13 @@ export function slugToTitle(slug: string): string {
 export function displayTitle(item: { title?: string; slug: string }): string {
   return item.title && item.title.length > 0 ? item.title : slugToTitle(item.slug);
 }
+
+/**
+ * Normalizes bio text by collapsing whitespace and removing spaces before punctuation.
+ */
+export function normalizeBioText(s: string): string {
+  return s
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:])/g, '$1')
+    .trim();
+}

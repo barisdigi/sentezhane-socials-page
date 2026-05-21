@@ -52,32 +52,36 @@ const jsonLdData = release.data.type === 'album'
   <SeoMeta slot="head" title={title} canonical={canonical} image={release.data.cover} ogType={ogType} />
   <JsonLd slot="head" data={jsonLdData} />
   <article class="release">
-    {release.data.cover && (
-      <Cover src={release.data.cover} alt={title} width={600} priority />
-    )}
+    <div class="release__cover">
+      {release.data.cover && (
+        <Cover src={release.data.cover} alt={title} width={320} priority />
+      )}
+    </div>
 
-    <header>
-      <h1>{title}</h1>
-      <span class="release-type">{typeLabel}</span>
-      {formattedDate && <p class="release-meta">{formattedDate}</p>}
-    </header>
+    <div class="release__content">
+      <header>
+        <h1>{title}</h1>
+        <span class="release-type">{typeLabel}</span>
+        {formattedDate && <p class="release-meta">{formattedDate}</p>}
+      </header>
 
-    <DspButtons links={release.data.links} releaseSlug={release.data.slug} />
+      <DspButtons links={release.data.links} releaseSlug={release.data.slug} />
 
-    {release.data.youtubeVideoId && (
-      <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} />
-    )}
+      {release.data.youtubeVideoId && (
+        <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} />
+      )}
 
-    {release.data.type === 'album' && tracks.length > 0 && (
-      <>
+      {release.data.type === 'album' && tracks.length > 0 && (
+        <>
+          <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} />
+          <h2>Şarkılar</h2>
+          <TrackList albumSlug={release.data.slug} tracks={tracks} />
+        </>
+      )}
+
+      {release.data.type !== 'album' && (
         <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} />
-        <h2>Şarkılar</h2>
-        <TrackList albumSlug={release.data.slug} tracks={tracks} />
-      </>
-    )}
-
-    {release.data.type !== 'album' && (
-      <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} />
-    )}
+      )}
+    </div>
   </article>
 </BaseLayout>

@@ -1,6 +1,8 @@
 ---
 import type { Release, Track } from '../lib/types';
 import { getDspLinks } from '../lib/dsp';
+import IconSpotify from './icons/IconSpotify.astro';
+import IconAppleMusic from './icons/IconAppleMusic.astro';
 
 interface Props {
   links: Release['data']['links'] | Track['data']['links'];
@@ -10,24 +12,36 @@ interface Props {
 
 const { links, releaseSlug, trackSlug } = Astro.props;
 const dspLinks = getDspLinks(links);
+
+const iconMap: Record<string, typeof IconSpotify> = {
+  spotify: IconSpotify,
+  appleMusic: IconAppleMusic,
+};
 ---
 
 {dspLinks.length > 0 && (
-  <div class="dsp-buttons">
-    {dspLinks.map((dsp) => (
-      <a
-        href={dsp.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="dsp-btn"
-        data-dsp={dsp.key}
-        data-release-slug={releaseSlug}
-        data-track-slug={trackSlug}
-      >
-        {dsp.label}
-      </a>
-    ))}
-  </div>
+  <section class="dsp-section">
+    <h2 class="dsp-heading">Dinle</h2>
+    <div class="dsp-buttons">
+      {dspLinks.map((dsp) => {
+        const Icon = iconMap[dsp.key];
+        return (
+          <a
+            href={dsp.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="dsp-btn"
+            data-dsp={dsp.key}
+            data-release-slug={releaseSlug}
+            data-track-slug={trackSlug}
+          >
+            {Icon && <Icon size={20} />}
+            <span>{dsp.label}</span>
+          </a>
+        );
+      })}
+    </div>
+  </section>
 )}
 
 <script>
