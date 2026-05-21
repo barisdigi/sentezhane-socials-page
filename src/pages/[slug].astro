@@ -1,0 +1,54 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getAllReleases, getReleaseBySlug, getTracksForAlbum } from '../lib/releases';
+import { displayTitle } from '../lib/format';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Cover from '../components/Cover.astro';
+import DspButtons from '../components/DspButtons.astro';
+import YouTubeEmbed from '../components/YouTubeEmbed.astro';
+import TrackList from '../components/TrackList.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const releases = await getAllReleases();
+  return releases.map((r) => ({ params: { slug: r.data.slug } }));
+};
+
+const { slug } = Astro.params;
+const release = await getReleaseBySlug(String(slug));
+if (!release) throw new Error('Not found');
+
+const tracks = release.data.type === 'album' ? await getTracksForAlbum(String(slug)) : [];
+
+const title = displayTitle(release.data);
+const typeLabel = release.data.type === 'album' ? 'Albüm' : 'Single';
+const formattedDate = release.data.releaseDate
+  ? new Intl.DateTimeFormat('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(release.data.releaseDate))
+  : undefined;
+---
+
+<BaseLayout title={title}>
+  <article class="release">
+    {release.data.cover && (
+      <Cover src={release.data.cover} alt={title} width={600} priority />
+    )}
+
+    <header>
+      <h1>{title}</h1>
+      <span class="release-type">{typeLabel}</span>
+      {formattedDate && <p class="release-meta">{formattedDate}</p>}
+    </header>
+
+    <DspButtons links={release.data.links} />
+
+    {release.data.youtubeVideoId && (
+      <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} />
+    )}
+
+    {release.data.type === 'album' && tracks.length > 0 && (
+      <>
+        <h2>Şarkılar</h2>
+        <TrackList albumSlug={release.data.slug} tracks={tracks} />
+      </>
+    )}
+  </article>
+</BaseLayout>

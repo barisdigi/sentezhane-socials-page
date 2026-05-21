@@ -2,17 +2,23 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Cover from '../components/Cover.astro';
 import { getAllReleases } from '../lib/releases';
+import { displayTitle } from '../lib/format';
 const releases = await getAllReleases();
 ---
 
 <BaseLayout title="Sentezhane">
   <h1>Sentezhane</h1>
   <ul class="release-list">
-    {releases.map((r) => (
-      <li>
-        {r.data.cover && <Cover src={r.data.cover} alt={r.data.title} width={200} />}
-        <strong>{r.data.title}</strong> — {r.data.type}
-      </li>
-    ))}
+    {releases.map((r) => {
+      const title = displayTitle(r.data);
+      return (
+        <li>
+          <a href={`/${r.data.slug}/`}>
+            {r.data.cover && <Cover src={r.data.cover} alt={title} width={200} />}
+            <strong>{title}</strong> — {r.data.type}
+          </a>
+        </li>
+      );
+    })}
   </ul>
 </BaseLayout>

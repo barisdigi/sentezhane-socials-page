@@ -69,3 +69,193 @@ a:hover {
   flex-direction: column;
   gap: 0.5rem;
 }
+
+.release-list li a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.release-list li a:hover {
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+/* Release page */
+.release {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--content-padding);
+  padding-block: 2rem;
+}
+
+.release > * + * {
+  margin-top: 1.5rem;
+}
+
+.release header {
+  margin-top: 1.5rem;
+}
+
+.release h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.release h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.release-type {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.release-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* DSP Buttons */
+.dsp-buttons {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 28rem;
+}
+
+.dsp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dsp-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+/* YouTube Embed */
+.youtube-embed {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-width: 56rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #000;
+}
+
+.youtube-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Track List */
+.track-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: track;
+}
+
+.track-list li {
+  border-bottom: 1px solid var(--border);
+}
+
+.track-list li:last-child {
+  border-bottom: none;
+}
+
+.track-list li a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  color: var(--fg);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+
+.track-list li a:hover {
+  background: var(--bg-elev);
+  text-decoration: none;
+}
+
+.track-number {
+  width: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+
+.track-title {
+  flex: 1;
+}
+
+.track-video-hint {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+}
+
+/* Breadcrumb */
+.breadcrumb ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+}
+
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.breadcrumb a {
+  color: var(--fg-muted);
+}
+
+.breadcrumb a:hover {
+  color: var(--accent);
+}
+
+.breadcrumb-sep {
+  color: var(--fg-muted);
+  margin-inline: 0.25rem;
+}
+
+.breadcrumb [aria-current="page"] {
+  color: var(--fg);
+}

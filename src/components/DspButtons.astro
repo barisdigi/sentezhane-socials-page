@@ -1,0 +1,27 @@
+---
+import type { Release, Track } from '../lib/types';
+import { getDspLinks } from '../lib/dsp';
+
+interface Props {
+  links: Release['data']['links'] | Track['data']['links'];
+}
+
+const { links } = Astro.props;
+const dspLinks = getDspLinks(links);
+---
+
+{dspLinks.length > 0 && (
+  <div class="dsp-buttons">
+    {dspLinks.map((dsp) => (
+      <a
+        href={dsp.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="dsp-btn"
+        data-dsp={dsp.key}
+      >
+        {dsp.label}
+      </a>
+    ))}
+  </div>
+)}

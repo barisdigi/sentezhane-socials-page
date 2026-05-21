@@ -7,7 +7,6 @@ const optionalStr = z.string().min(1).optional();
 const linksSchema = z.object({
   spotify: optionalUrl,
   appleMusic: optionalUrl,
-  youtubeMusic: optionalUrl,
 });
 
 const artist = defineCollection({
@@ -49,25 +48,22 @@ const releases = defineCollection({
       title: row.title,
       releaseDate: row.releaseDate,
       cover: row.cover,
-      description: row.description,
       youtubeVideoId: row.youtubeVideoId,
       links: {
         spotify: row.spotify,
         appleMusic: row.appleMusic,
-        youtubeMusic: row.youtubeMusic,
       },
     }),
   }),
   schema: z.object({
     slug: z.string().min(1),
     type: z.enum(['album', 'single']),
-    title: z.string().min(1),
+    title: optionalStr,
     releaseDate: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .optional(),
     cover: optionalStr,
-    description: optionalStr,
     youtubeVideoId: optionalStr,
     links: linksSchema,
   }),
@@ -85,14 +81,13 @@ const tracks = defineCollection({
       links: {
         spotify: row.spotify,
         appleMusic: row.appleMusic,
-        youtubeMusic: row.youtubeMusic,
       },
     }),
   }),
   schema: z.object({
     albumSlug: z.string().min(1),
     slug: z.string().min(1),
-    title: z.string().min(1),
+    title: optionalStr,
     cover: optionalStr,
     youtubeVideoId: optionalStr,
     links: linksSchema,

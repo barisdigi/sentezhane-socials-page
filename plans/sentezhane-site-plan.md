@@ -16,15 +16,15 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
 
 2. **Phase 2: Content Schema & Sample Data**
     - **Objective:** Typed content collections loaded from CSV via Zod for `artist` + `releases` (with joined `tracks`); sample album and single loaded.
-    - **Files/Functions to Modify/Create:** `src/content/config.ts` (custom CSV `loader`s using `papaparse`), `content/artist.csv` (header + 1 row: `name, bio, metaPixelId, twitter, instagram, tiktok, youtube, website` — only `name` required), `content/releases.csv` (header + rows: `slug, type, title, releaseDate, cover, description, youtubeVideoId, spotify, appleMusic, youtubeMusic` — only `slug`, `type`, `title` required), `content/tracks.csv` (header + rows: `albumSlug, slug, title, cover, youtubeVideoId, spotify, appleMusic, youtubeMusic` — only `albumSlug`, `slug`, `title` required; `cover` falls back to album cover), `src/lib/releases.ts` (`getAllReleases`, `getReleaseBySlug`, `getTrack`, `sortByDateDesc` — joins tracks to album by `albumSlug`, resolves track cover with fallback to album cover), `public/covers/`.
+    - **Files/Functions to Modify/Create:** `src/content/config.ts` (custom CSV `loader`s using `papaparse`), `content/artist.csv` (header + 1 row: `name, bio, metaPixelId, twitter, instagram, tiktok, youtube, website` — only `name` required), `content/releases.csv` (header + rows: `slug, type, title, releaseDate, cover, youtubeVideoId, spotify, appleMusic` — only `slug`, `type` required), `content/tracks.csv` (header + rows: `albumSlug, slug, title, cover, youtubeVideoId, spotify, appleMusic` — only `albumSlug`, `slug` required; `cover` falls back to album cover), `src/lib/releases.ts` (`getAllReleases`, `getReleaseBySlug`, `getTrack`, `sortByDateDesc` — joins tracks to album by `albumSlug`, resolves track cover with fallback to album cover), `public/covers/`.
     - **Tests to Write:** None (Zod validates at build).
     - **Steps:**
         1. Install `papaparse` and write a CSV loader helper for content collections.
-        2. Define Zod schemas. Required fields are minimal; everything else is optional.
-           - release = `{ slug, type: 'album'|'single', title, releaseDate?, cover?, description?, youtubeVideoId?, links: { spotify?, appleMusic?, youtubeMusic? } }`
-           - track = `{ albumSlug, slug, title, cover?, youtubeVideoId?, links: { spotify?, appleMusic?, youtubeMusic? } }`
+        2. Define Zod schemas. Required fields are minimal; everything else is optional. Title is optional too — a display helper humanizes the slug as fallback.
+           - release = `{ slug, type: 'album'|'single', title?, releaseDate?, cover?, youtubeVideoId?, links: { spotify?, appleMusic? } }`
+           - track = `{ albumSlug, slug, title?, cover?, youtubeVideoId?, links: { spotify?, appleMusic? } }`
            - artist = `{ name, bio?, metaPixelId?, socials: { twitter?, instagram?, tiktok?, youtube?, website? } }`
-           - Empty CSV cells become `undefined`; the entire `socials` object may be empty.
+           - Empty CSV cells become `undefined`; the entire `socials` object may be empty. CSV rows shorter than the header are tolerated (missing trailing columns become `undefined`).
         3. Implement helpers in `src/lib/releases.ts`: joins `tracks.csv` rows onto albums by `albumSlug`, and `getTrack` returns a resolved `cover` (track’s own cover if present, otherwise the album’s cover; may still be `undefined`).
         4. Add sample data: one album with 3 tracks (one track has its own cover, others fall back) and one single (release row only); `astro build` must validate.
 
@@ -41,7 +41,7 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
 
 4. **Phase 4: Release & Track Page Templates**
     - **Objective:** Shared release template renders albums + singles; album tracks get sub-pages.
-    - **Files/Functions to Modify/Create:** `src/pages/[slug].astro` (releases), `src/pages/[album]/[track].astro` (album tracks), `src/components/DspButtons.astro`, `src/components/YouTubeEmbed.astro` (no-cookie, lazy), `src/components/TrackList.astro`, `src/components/Breadcrumb.astro`, `src/lib/dsp.ts` (Spotify, Apple Music, YouTube Music).
+    - **Files/Functions to Modify/Create:** `src/pages/[slug].astro` (releases), `src/pages/[album]/[track].astro` (album tracks), `src/components/DspButtons.astro`, `src/components/YouTubeEmbed.astro` (no-cookie, lazy), `src/components/TrackList.astro`, `src/components/Breadcrumb.astro`, `src/lib/dsp.ts` (Spotify, Apple Music).
     - **Tests to Write:** None.
     - **Steps:**
         1. Add `getStaticPaths` for releases and album tracks.

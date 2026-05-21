@@ -1,0 +1,23 @@
+---
+import type { getTracksForAlbum } from '../lib/releases';
+import { displayTitle } from '../lib/format';
+
+interface Props {
+  albumSlug: string;
+  tracks: Awaited<ReturnType<typeof getTracksForAlbum>>;
+}
+
+const { albumSlug, tracks } = Astro.props;
+---
+
+<ol class="track-list">
+  {tracks.map((track, i) => (
+    <li>
+      <a href={`/${albumSlug}/${track.data.slug}/`}>
+        <span class="track-number">{i + 1}</span>
+        <span class="track-title">{displayTitle(track.data)}</span>
+        {track.data.youtubeVideoId && <span class="track-video-hint">▶</span>}
+      </a>
+    </li>
+  ))}
+</ol>

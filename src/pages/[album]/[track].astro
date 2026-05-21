@@ -1,0 +1,61 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import { getAllReleases, getTracksForAlbum, getTrack } from '../../lib/releases';
+import { displayTitle } from '../../lib/format';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Cover from '../../components/Cover.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import DspButtons from '../../components/DspButtons.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const releases = await getAllReleases();
+  const albums = releases.filter((r) => r.data.type === 'album');
+  const paths = [];
+  for (const album of albums) {
+    const tracks = await getTracksForAlbum(album.data.slug);
+    for (const track of tracks) {
+      paths.push({ params: { album: album.data.slug, track: track.data.slug } });
+    }
+  }
+  return paths;
+};
+
+const { album: albumSlug, track: trackSlug } = Astro.params;
+const result = await getTrack(String(albumSlug), String(trackSlug));
+if (!result) throw new Error('Not found');
+
+const { track, album, resolvedCover } = result;
+
+const trackTitle = displayTitle(track.data);
+const albumTitle = displayTitle(album.data);
+
+const artistEntry = await getCollection('artist');
+const artistName = artistEntry[0]?.data.name ?? 'Sentezhane';
+---
+
+<BaseLayout title={`${trackTitle} — ${albumTitle}`}>
+  <article class="release">
+    <Breadcrumb items={[
+      { label: artistName, href: '/' },
+      { label: albumTitle, href: `/${album.data.slug}/` },
+      { label: trackTitle },
+    ]} />
+
+    {resolvedCover && (
+      <Cover src={resolvedCover} alt={trackTitle} width={600} priority />
+    )}
+
+    <header>
+      <h1>{trackTitle}</h1>
+      <p class="release-meta">Albüm: <a href={`/${album.data.slug}/`}>{albumTitle}</a></p>
+    </header>
+
+    <DspButtons links={track.data.links} />
+
+    {track.data.youtubeVideoId && (
+      <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} />
+    )}
+  </article>
+</BaseLayout>

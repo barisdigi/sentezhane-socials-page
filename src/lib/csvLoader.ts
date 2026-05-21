@@ -70,8 +70,14 @@ export function csvLoader(
         skipEmptyLines: true,
       });
 
-      if (errors.length > 0) {
-        logger.error(`CSV parse errors in ${relativePath}: ${JSON.stringify(errors)}`);
+      // FieldMismatch warnings (e.g., a row with fewer columns than the header)
+      // are non-fatal: missing trailing columns simply become undefined.
+      // Hard parse errors still abort the load.
+      const fatal = errors.filter((e) => e.type !== 'FieldMismatch');
+      if (fatal.length > 0) {
+        logger.error(
+          `CSV parse errors in ${relativePath}: ${JSON.stringify(fatal)}`,
+        );
         return;
       }
 

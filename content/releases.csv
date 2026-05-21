@@ -1,3 +1,3 @@
-slug,type,title,releaseDate,cover,description,youtubeVideoId,spotify,appleMusic,youtubeMusic
-ilk-album,album,İlk Albüm,2025-03-14,/covers/ilk-album.jpg,"Sentezhane'nin ilk uzunçaları.",dQw4w9WgXcQ,https://open.spotify.com/album/EXAMPLE,https://music.apple.com/album/EXAMPLE,https://music.youtube.com/playlist?list=EXAMPLE
-yaz-gecesi,single,Yaz Gecesi,2026-05-01,/covers/yaz-gecesi.jpg,,,https://open.spotify.com/track/EXAMPLE2,,
+slug,type,title,releaseDate,cover,youtubeVideoId,spotify,appleMusic
+donemsel,album,Dönemsel,2026-05-08,/covers/donemsel.png,,https://open.spotify.com/intl-tr/album/1QAPOTMOT2jFSiobFXwhdv,https://music.apple.com/tr/album/d%C3%B6nemsel/6766346254
+film-seridi,single, Film Şeridi,2026-08-16,/covers/film-seridi.png,,https://open.spotify.com/intl-tr/album/6OiPGu3SJ9d1nds9ieTsTt,https://music.apple.com/tr/album/film-%C5%9Feridi-single/6771166492
