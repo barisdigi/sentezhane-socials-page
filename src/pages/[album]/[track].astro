@@ -10,7 +10,8 @@ import DspButtons from '../../components/DspButtons.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import SeoMeta from '../../components/SeoMeta.astro';
 import JsonLd from '../../components/JsonLd.astro';
-import { buildMusicRecordingJsonLd } from '../../lib/seo';
+import { buildMusicRecordingJsonLd, abs } from '../../lib/seo';
+import ShareButtons from '../../components/ShareButtons.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const releases = await getAllReleases();
@@ -74,5 +75,7 @@ const jsonLdData = buildMusicRecordingJsonLd({
     {track.data.youtubeVideoId && (
       <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
     )}
+
+    <ShareButtons url={abs('/' + album.data.slug + '/' + track.data.slug + '/')} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} />
   </article>
 </BaseLayout>

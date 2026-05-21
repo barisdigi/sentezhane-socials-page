@@ -10,7 +10,8 @@ import YouTubeEmbed from '../components/YouTubeEmbed.astro';
 import TrackList from '../components/TrackList.astro';
 import SeoMeta from '../components/SeoMeta.astro';
 import JsonLd from '../components/JsonLd.astro';
-import { buildMusicAlbumJsonLd, buildMusicRecordingJsonLd } from '../lib/seo';
+import { buildMusicAlbumJsonLd, buildMusicRecordingJsonLd, abs } from '../lib/seo';
+import ShareButtons from '../components/ShareButtons.astro';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const releases = await getAllReleases();
@@ -69,9 +70,14 @@ const jsonLdData = release.data.type === 'album'
 
     {release.data.type === 'album' && tracks.length > 0 && (
       <>
+        <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} />
         <h2>Şarkılar</h2>
         <TrackList albumSlug={release.data.slug} tracks={tracks} />
       </>
+    )}
+
+    {release.data.type !== 'album' && (
+      <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} />
     )}
   </article>
 </BaseLayout>

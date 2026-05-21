@@ -377,3 +377,36 @@ a:hover {
 .breadcrumb [aria-current="page"] {
   color: var(--fg);
 }
+
+/* Share Buttons */
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.share-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--fg-muted);
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: inherit;
+  font-size: 0.875rem;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.share-btn:hover, .share-btn:focus-visible {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(124,58,237,0.5);
+}
