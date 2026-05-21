@@ -1,0 +1,21 @@
+---
+import Cover from './Cover.astro';
+
+interface Props {
+  slug: string;
+  title: string;
+  type: 'album' | 'single';
+  cover?: string;
+}
+
+const { slug, title, type, cover } = Astro.props;
+const typeLabel = type === 'album' ? 'Albüm' : 'Single';
+---
+
+<a class="release-card" href={`/${slug}/`} data-type={type}>
+  {cover && <Cover src={cover} alt={title} width={400} />}
+  <div class="release-card__body">
+    <h3>{title}</h3>
+    <span class="release-card__type">{typeLabel}</span>
+  </div>
+</a>

@@ -1,0 +1,26 @@
+---
+---
+
+<div class="filter-chips">
+  <button class="chip" data-filter="all" aria-pressed="true">Hepsi</button>
+  <button class="chip" data-filter="album" aria-pressed="false">Albümler</button>
+  <button class="chip" data-filter="single" aria-pressed="false">Singlelar</button>
+</div>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]');
+  const grid = document.querySelector<HTMLElement>('.release-grid');
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.setAttribute('aria-pressed', 'false'));
+      chip.setAttribute('aria-pressed', 'true');
+      const filter = chip.dataset.filter!;
+      if (filter === 'all') {
+        delete grid!.dataset.filter;
+      } else {
+        grid!.dataset.filter = filter;
+      }
+    });
+  });
+</script>

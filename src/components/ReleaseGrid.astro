@@ -1,0 +1,22 @@
+---
+import ReleaseCard from './ReleaseCard.astro';
+import { displayTitle } from '../lib/format';
+import type { getAllReleases } from '../lib/releases';
+
+interface Props {
+  releases: Awaited<ReturnType<typeof getAllReleases>>;
+}
+
+const { releases } = Astro.props;
+---
+
+<section class="release-grid">
+  {releases.map((r) => (
+    <ReleaseCard
+      slug={r.data.slug}
+      title={displayTitle(r.data)}
+      type={r.data.type}
+      cover={r.data.cover}
+    />
+  ))}
+</section>

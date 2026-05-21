@@ -1,0 +1,30 @@
+---
+import { getEntry } from 'astro:content';
+
+const artist = await getEntry('artist', 'artist');
+
+const platformLabels: Record<string, string> = {
+  website: 'Website',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  twitter: 'X',
+};
+
+const order = ['website', 'instagram', 'youtube', 'tiktok', 'twitter'] as const;
+---
+
+{artist && (
+  <section class="artist-bio">
+    <h2>{artist.data.name}</h2>
+    {artist.data.bio && <p>{artist.data.bio}</p>}
+    <nav class="artist-bio__links">
+      {order.map((key) => {
+        const url = artist.data.socials[key];
+        return url ? (
+          <a href={url} target="_blank" rel="noopener noreferrer">{platformLabels[key]}</a>
+        ) : null;
+      })}
+    </nav>
+  </section>
+)}
