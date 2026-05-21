@@ -355,6 +355,14 @@ a:hover {
   color: var(--fg-muted);
 }
 
+.dsp-cta {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--fg);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
 .dsp-buttons {
   display: grid;
   gap: var(--space-xs);

@@ -22,6 +22,7 @@ const iconMap: Record<string, typeof IconSpotify> = {
 {dspLinks.length > 0 && (
   <section class="dsp-section">
     <h2 class="dsp-heading">Dinle</h2>
+    <p class="dsp-cta">Sevdiğin platformda dinle</p>
     <div class="dsp-buttons">
       {dspLinks.map((dsp) => {
         const Icon = iconMap[dsp.key];
