@@ -1,14 +1,23 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FilterChips from '../components/FilterChips.astro';
 import ReleaseGrid from '../components/ReleaseGrid.astro';
 import ArtistBio from '../components/ArtistBio.astro';
+import SeoMeta from '../components/SeoMeta.astro';
+import JsonLd from '../components/JsonLd.astro';
 import { getAllReleases } from '../lib/releases';
+import { buildMusicGroupJsonLd } from '../lib/seo';
 
 const releases = await getAllReleases();
+const artistEntries = await getCollection('artist');
+const artist = artistEntries[0];
 ---
 
 <BaseLayout title="Sentezhane">
+  <SeoMeta slot="head" title="Sentezhane — Diskografi" canonical="/" ogType="website" />
+  <JsonLd slot="head" data={buildMusicGroupJsonLd(artist.data)} />
+
   <section class="hero">
     <h1>Sentezhane</h1>
     <p class="hero-sub">Diskografi</p>

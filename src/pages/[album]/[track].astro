@@ -8,6 +8,9 @@ import Cover from '../../components/Cover.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import DspButtons from '../../components/DspButtons.astro';
 import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+import SeoMeta from '../../components/SeoMeta.astro';
+import JsonLd from '../../components/JsonLd.astro';
+import { buildMusicRecordingJsonLd } from '../../lib/seo';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const releases = await getAllReleases();
@@ -33,9 +36,23 @@ const albumTitle = displayTitle(album.data);
 
 const artistEntry = await getCollection('artist');
 const artistName = artistEntry[0]?.data.name ?? 'Sentezhane';
+
+const canonical = '/' + album.data.slug + '/' + track.data.slug + '/';
+const jsonLdData = buildMusicRecordingJsonLd({
+  recording: {
+    title: trackTitle,
+    slug: track.data.slug,
+    cover: resolvedCover,
+    albumSlug: album.data.slug,
+    albumTitle,
+  },
+  artistName,
+});
 ---
 
 <BaseLayout title={`${trackTitle} — ${albumTitle}`}>
+  <SeoMeta slot="head" title={`${trackTitle} — ${albumTitle}`} canonical={canonical} image={resolvedCover} ogType="music.song" />
+  <JsonLd slot="head" data={jsonLdData} />
   <article class="release">
     <Breadcrumb items={[
       { label: artistName, href: '/' },

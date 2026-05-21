@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
 import { getAllReleases, getReleaseBySlug, getTracksForAlbum } from '../lib/releases';
 import { displayTitle } from '../lib/format';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -7,6 +8,9 @@ import Cover from '../components/Cover.astro';
 import DspButtons from '../components/DspButtons.astro';
 import YouTubeEmbed from '../components/YouTubeEmbed.astro';
 import TrackList from '../components/TrackList.astro';
+import SeoMeta from '../components/SeoMeta.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { buildMusicAlbumJsonLd, buildMusicRecordingJsonLd } from '../lib/seo';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const releases = await getAllReleases();
@@ -24,9 +28,28 @@ const typeLabel = release.data.type === 'album' ? 'Albüm' : 'Single';
 const formattedDate = release.data.releaseDate
   ? new Intl.DateTimeFormat('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(release.data.releaseDate))
   : undefined;
+
+const artistEntries = await getCollection('artist');
+const artistName = artistEntries[0]?.data.name ?? 'Sentezhane';
+
+const canonical = '/' + release.data.slug + '/';
+const ogType = release.data.type === 'album' ? 'music.album' : 'music.song';
+
+const jsonLdData = release.data.type === 'album'
+  ? buildMusicAlbumJsonLd({
+      album: release.data,
+      tracks: tracks.map((t) => ({ title: displayTitle(t.data), slug: t.data.slug })),
+      artistName,
+    })
+  : buildMusicRecordingJsonLd({
+      recording: { title, slug: release.data.slug, cover: release.data.cover },
+      artistName,
+    });
 ---
 
 <BaseLayout title={title}>
+  <SeoMeta slot="head" title={title} canonical={canonical} image={release.data.cover} ogType={ogType} />
+  <JsonLd slot="head" data={jsonLdData} />
   <article class="release">
     {release.data.cover && (
       <Cover src={release.data.cover} alt={title} width={600} priority />

@@ -1,0 +1,29 @@
+---
+import { abs } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical: string;
+  image?: string;
+  ogType?: 'website' | 'music.album' | 'music.song';
+}
+
+const { title, description, canonical, image, ogType = 'website' } = Astro.props;
+
+const absCanonical = abs(canonical);
+const absImage = image ? abs(image) : undefined;
+const twitterCard = absImage ? 'summary_large_image' : 'summary';
+---
+
+<link rel="canonical" href={absCanonical} />
+<meta property="og:title" content={title} />
+<meta property="og:url" content={absCanonical} />
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content="Sentezhane" />
+{description && <meta property="og:description" content={description} />}
+{absImage && <meta property="og:image" content={absImage} />}
+<meta name="twitter:card" content={twitterCard} />
+<meta name="twitter:title" content={title} />
+{description && <meta name="twitter:description" content={description} />}
+{absImage && <meta name="twitter:image" content={absImage} />}
