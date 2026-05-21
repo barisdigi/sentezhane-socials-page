@@ -1,14 +1,14 @@
 ---
+import { getAllReleases } from '../lib/releases';
+const releases = await getAllReleases();
 ---
 
-<!doctype html>
 <html lang="tr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sentezhane</title>
-  </head>
+  <head><meta charset="utf-8" /><title>Sentezhane</title></head>
   <body>
-    <h1>sentezhane</h1>
+    <h1>Sentezhane</h1>
+    <ul>
+      {releases.map((r) => <li>{r.data.type}: {r.data.title} ({r.data.slug})</li>)}
+    </ul>
   </body>
 </html>

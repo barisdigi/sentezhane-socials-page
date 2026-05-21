@@ -1,6 +1,6 @@
 ## Plan: Sentezhane Static Artist Site
 
-A minimal static smart-link-style site for **sentezhane** (sentezhane.com), built with Astro and deployed to GitHub Pages. Releases (albums + singles) are authored as YAML in `content/`; the build generates one page per album, per single, and per track-within-album, plus a discography home page. Includes Meta Pixel tracking on DSP clicks, YouTube plays, and shares, plus SEO (OG/Twitter/JSON-LD/sitemap) and PWA basics. No test infrastructure — content validation via Zod and a clean `astro build` is the bar.
+A minimal static smart-link-style site for **sentezhane** (sentezhane.com), built with Astro and deployed to GitHub Pages. Releases (albums + singles) and tracks are authored as CSV files in `content/` (easy to edit in Excel/Sheets); the build generates one page per album, per single, and per track-within-album, plus a discography home page. Includes Meta Pixel tracking on DSP clicks, YouTube plays, and shares, plus SEO (OG/Twitter/JSON-LD/sitemap) and PWA basics. No test infrastructure — content validation via Zod and a clean `astro build` is the bar.
 
 **Phases (9)**
 
@@ -15,14 +15,18 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
         4. Run `astro build` and confirm clean output.
 
 2. **Phase 2: Content Schema & Sample Data**
-    - **Objective:** Typed content collections via Zod for `artist` + `releases` (with optional `tracks`); sample album and single loaded.
-    - **Files/Functions to Modify/Create:** `src/content/config.ts`, `src/content/artist/sentezhane.yaml` (name, bio, socials, `metaPixelId: '1606102687153657'`), `src/content/releases/<sample-album>.yaml`, `src/content/releases/<sample-single>.yaml`, `src/lib/releases.ts` (`getAllReleases`, `getReleaseBySlug`, `getTrack`, `sortByDateDesc`), `public/covers/`.
+    - **Objective:** Typed content collections loaded from CSV via Zod for `artist` + `releases` (with joined `tracks`); sample album and single loaded.
+    - **Files/Functions to Modify/Create:** `src/content/config.ts` (custom CSV `loader`s using `papaparse`), `content/artist.csv` (header + 1 row: `name, bio, metaPixelId, twitter, instagram, tiktok, youtube, website` — only `name` required), `content/releases.csv` (header + rows: `slug, type, title, releaseDate, cover, description, youtubeVideoId, spotify, appleMusic, youtubeMusic` — only `slug`, `type`, `title` required), `content/tracks.csv` (header + rows: `albumSlug, slug, title, cover, youtubeVideoId, spotify, appleMusic, youtubeMusic` — only `albumSlug`, `slug`, `title` required; `cover` falls back to album cover), `src/lib/releases.ts` (`getAllReleases`, `getReleaseBySlug`, `getTrack`, `sortByDateDesc` — joins tracks to album by `albumSlug`, resolves track cover with fallback to album cover), `public/covers/`.
     - **Tests to Write:** None (Zod validates at build).
     - **Steps:**
-        1. Add YAML support for content collections.
-        2. Define schemas: release = `{ slug, type: 'album'|'single', title, releaseDate, cover, description?, youtubeVideoId?, links: { spotify?, appleMusic?, youtubeMusic?, amazon?, deezer?, tidal?, soundcloud?, bandcamp? }, tracks?: Track[] }`; track = `{ slug, title, youtubeVideoId?, links }`.
-        3. Implement helpers in `src/lib/releases.ts`.
-        4. Add one sample album (3 tracks) and one sample single; `astro build` must validate.
+        1. Install `papaparse` and write a CSV loader helper for content collections.
+        2. Define Zod schemas. Required fields are minimal; everything else is optional.
+           - release = `{ slug, type: 'album'|'single', title, releaseDate?, cover?, description?, youtubeVideoId?, links: { spotify?, appleMusic?, youtubeMusic? } }`
+           - track = `{ albumSlug, slug, title, cover?, youtubeVideoId?, links: { spotify?, appleMusic?, youtubeMusic? } }`
+           - artist = `{ name, bio?, metaPixelId?, socials: { twitter?, instagram?, tiktok?, youtube?, website? } }`
+           - Empty CSV cells become `undefined`; the entire `socials` object may be empty.
+        3. Implement helpers in `src/lib/releases.ts`: joins `tracks.csv` rows onto albums by `albumSlug`, and `getTrack` returns a resolved `cover` (track’s own cover if present, otherwise the album’s cover; may still be `undefined`).
+        4. Add sample data: one album with 3 tracks (one track has its own cover, others fall back) and one single (release row only); `astro build` must validate.
 
 3. **Phase 3: Core Layout, Theme & PWA Basics**
     - **Objective:** Visual shell — dark theme default, responsive, image optimization, favicon, manifest.
@@ -37,11 +41,11 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
 
 4. **Phase 4: Release & Track Page Templates**
     - **Objective:** Shared release template renders albums + singles; album tracks get sub-pages.
-    - **Files/Functions to Modify/Create:** `src/pages/[slug].astro` (releases), `src/pages/[album]/[track].astro` (album tracks), `src/components/DspButtons.astro`, `src/components/YouTubeEmbed.astro` (no-cookie, lazy), `src/components/TrackList.astro`, `src/components/Breadcrumb.astro`, `src/lib/dsp.ts` (Spotify, Apple Music, YouTube Music, Amazon Music, Deezer, Tidal, SoundCloud, Bandcamp).
+    - **Files/Functions to Modify/Create:** `src/pages/[slug].astro` (releases), `src/pages/[album]/[track].astro` (album tracks), `src/components/DspButtons.astro`, `src/components/YouTubeEmbed.astro` (no-cookie, lazy), `src/components/TrackList.astro`, `src/components/Breadcrumb.astro`, `src/lib/dsp.ts` (Spotify, Apple Music, YouTube Music).
     - **Tests to Write:** None.
     - **Steps:**
         1. Add `getStaticPaths` for releases and album tracks.
-        2. Implement `DspButtons` — render only links present in YAML.
+        2. Implement `DspButtons` — render only links present in the CSV row.
         3. Conditional `YouTubeEmbed` when `youtubeVideoId` is set.
         4. `TrackList` on album pages links to `/[albumSlug]/[trackSlug]`.
         5. `Breadcrumb` on track pages links back to the album.
@@ -53,18 +57,19 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
     - **Steps:**
         1. Render all releases sorted newest-first.
         2. Inline `<script>` toggles `data-type` for filtering (no framework).
-        3. `ArtistBio` reads from `artist.yaml`, shown only on home.
+        3. `ArtistBio` reads from `artist.csv`, shown only on home.
 
 6. **Phase 6: Meta Pixel & Event Tracking**
     - **Objective:** Inject Meta Pixel (`1606102687153657`); fire events on DSP clicks and YouTube plays.
     - **Files/Functions to Modify/Create:** `src/components/MetaPixel.astro` (mounted in `BaseLayout`), `src/lib/tracking.ts` (`track(eventName, params)` safe-guarded by `typeof window.fbq`), update `DspButtons.astro` (click → `track('ClickDsp', { dsp, releaseSlug, trackSlug? })`), update `YouTubeEmbed.astro` to use the YouTube IFrame API (`onStateChange` `PLAYING` → `track('VideoPlay', { releaseSlug, trackSlug? })`).
     - **Tests to Write:** None.
     - **Steps:**
-        1. Implement `tracking.ts`.
-        2. `MetaPixel.astro` reads pixel ID from `artist.yaml` and emits standard snippet + `PageView`.
-        3. Switch `YouTubeEmbed.astro` to IFrame API.
-        4. Wire click handlers on DSP buttons.
-        5. Verify with Meta Pixel Helper.
+        1. `MetaPixel.astro` is rendered only if `metaPixelId` is set in `artist.csv`; otherwise it is a no-op.
+        2. Implement `tracking.ts` with a safe `window.fbq` guard so calls are no-ops when the pixel isn’t loaded.
+        3. `MetaPixel.astro` emits the standard snippet + `PageView` when active.
+        4. Switch `YouTubeEmbed.astro` to IFrame API.
+        5. Wire click handlers on DSP buttons.
+        6. Verify with Meta Pixel Helper.
 
 7. **Phase 7: SEO Meta, JSON-LD, Sitemap & Robots**
     - **Objective:** Per-page OG/Twitter meta + JSON-LD; auto sitemap + robots.
@@ -93,6 +98,6 @@ A minimal static smart-link-style site for **sentezhane** (sentezhane.com), buil
         1. Add workflow (Node from `.nvmrc`, `npm ci`, `astro build`, deploy).
         2. Add `CNAME`.
         3. 404 page links home.
-        4. README documents YAML schema, image conventions (drop high-res into `public/covers/<slug>.jpg`), and how to add an album/single/track.
+        4. README documents the CSV columns, image conventions (drop high-res into `public/covers/<slug>.jpg`), and how to add an album/single/track row.
 
 **Open Questions** — none.

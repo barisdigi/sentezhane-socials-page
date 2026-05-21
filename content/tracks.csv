@@ -1,0 +1,4 @@
+albumSlug,slug,title,cover,youtubeVideoId,spotify,appleMusic,youtubeMusic
+ilk-album,baslangic,Başlangıç,,,https://open.spotify.com/track/EXAMPLE-A,,
+ilk-album,gece-yarisi,Gece Yarısı,/covers/gece-yarisi.jpg,dQw4w9WgXcQ,https://open.spotify.com/track/EXAMPLE-B,https://music.apple.com/track/EXAMPLE-B,https://music.youtube.com/watch?v=EXAMPLE-B
+ilk-album,son-perde,Son Perde,,,https://open.spotify.com/track/EXAMPLE-C,,
