@@ -29,18 +29,19 @@ const iconMap: Record<string, typeof IconSpotify> = {
     <div class="dsp-buttons">
       {dspLinks.map((dsp) => {
         const Icon = iconMap[dsp.key];
+        const isPrimary = dsp.key === 'spotify';
         return (
           <a
             href={dsp.url}
             target="_blank"
             rel="noopener noreferrer"
-            class="dsp-btn"
+            class={`dsp-btn${isPrimary ? ' dsp-btn--primary' : ''}`}
             data-dsp={dsp.key}
             data-release-slug={releaseSlug}
             data-track-slug={trackSlug}
             data-lang={lang}
           >
-            {Icon && <Icon size={20} />}
+            {Icon && <Icon size={isPrimary ? 24 : 20} />}
             <span>{dsp.label}</span>
           </a>
         );

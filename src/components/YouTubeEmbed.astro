@@ -10,9 +10,28 @@ interface Props {
 }
 
 const { videoId, title = 'YouTube video player', releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
+const posterUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 ---
 
-<div class="youtube-embed" data-video-id={videoId} data-release-slug={releaseSlug} data-track-slug={trackSlug} data-title={title} data-lang={lang}></div>
+<div
+  class="youtube-embed"
+  data-video-id={videoId}
+  data-release-slug={releaseSlug}
+  data-track-slug={trackSlug}
+  data-title={title}
+  data-lang={lang}
+>
+  <button
+    type="button"
+    class="youtube-embed__poster"
+    style={`background-image: url('${posterUrl}')`}
+    aria-label={title}
+  >
+    <span class="youtube-embed__play" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+    </span>
+  </button>
+</div>
 
 <script>
   import { track } from '../lib/tracking';
@@ -41,23 +60,44 @@ const { videoId, title = 'YouTube video player', releaseSlug, trackSlug, lang = 
     return (window as unknown as { YT: YTStatic }).YT;
   }
 
-  function initPlayers() {
-    const containers = document.querySelectorAll<HTMLElement>('.youtube-embed[data-video-id]');
-    containers.forEach((el) => {
-      if (el.dataset.initialized) return;
-      el.dataset.initialized = '1';
-      const videoId = el.dataset.videoId!;
-      const releaseSlug = el.dataset.releaseSlug!;
-      const trackSlug = el.dataset.trackSlug || undefined;
-      const title = el.dataset.title || 'YouTube video player';
-      const lang = (el.dataset.lang as 'tr' | 'en') || 'tr';
+  function ensureApi(cb: () => void) {
+    if (getYT()?.Player) {
+      cb();
+      return;
+    }
+    const w = window as unknown as { onYouTubeIframeAPIReady?: () => void };
+    const prev = w.onYouTubeIframeAPIReady;
+    w.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      cb();
+    };
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  }
 
+  function loadPlayer(container: HTMLElement) {
+    if (container.dataset.initialized) return;
+    container.dataset.initialized = '1';
+
+    const videoId = container.dataset.videoId!;
+    const releaseSlug = container.dataset.releaseSlug!;
+    const trackSlug = container.dataset.trackSlug || undefined;
+    const title = container.dataset.title || 'YouTube video player';
+    const lang = (container.dataset.lang as 'tr' | 'en') || 'tr';
+
+    container.innerHTML = '';
+    const mount = document.createElement('div');
+    container.appendChild(mount);
+
+    ensureApi(() => {
       const YT = getYT();
-      const Player = YT.Player;
-      new Player(el, {
+      new YT.Player(mount, {
         videoId,
         host: 'https://www.youtube-nocookie.com',
-        playerVars: { rel: 0, modestbranding: 1 },
+        playerVars: { rel: 0, modestbranding: 1, autoplay: 1 },
         events: {
           onReady: (event: YTPlayerEvent) => {
             event.target.getIframe().title = title;
@@ -75,19 +115,11 @@ const { videoId, title = 'YouTube video player', releaseSlug, trackSlug, lang = 
     });
   }
 
-  if (getYT()?.Player) {
-    initPlayers();
-  } else {
-    const w = window as unknown as { onYouTubeIframeAPIReady?: () => void };
-    const prev = w.onYouTubeIframeAPIReady;
-    w.onYouTubeIframeAPIReady = () => {
-      if (prev) prev();
-      initPlayers();
-    };
-    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-    }
-  }
+  document.addEventListener('click', (e) => {
+    const poster = (e.target as HTMLElement).closest<HTMLElement>('.youtube-embed__poster');
+    if (!poster) return;
+    const container = poster.closest<HTMLElement>('.youtube-embed[data-video-id]');
+    if (!container) return;
+    loadPlayer(container);
+  });
 </script>
