@@ -14,8 +14,7 @@ interface Props {
   lang?: Locale;
 }
 
-const { lang: _lang = 'tr' } = Astro.props;
-void _lang;
+const { lang = 'tr' } = Astro.props;
 const artist = await getEntry('artist', 'artist');
 
 const platformLabels: Record<string, string> = {
@@ -41,7 +40,10 @@ const order = ['website', 'instagram', 'youtube', 'tiktok', 'twitter'] as const;
   <section class="artist-bio">
     <Image src={profile} alt={artist.data.name} width={120} height={120} class="artist-bio__avatar" />
     <h2>{artist.data.name}</h2>
-    {artist.data.bio && <p>{normalizeBioText(artist.data.bio)}</p>}
+    {(() => {
+      const bioText = lang === 'en' ? (artist.data.bioEn ?? artist.data.bio) : artist.data.bio;
+      return bioText ? <p>{normalizeBioText(bioText)}</p> : null;
+    })()}
     <nav class="artist-bio__links">
       {order.map((key) => {
         const url = artist.data.socials[key];

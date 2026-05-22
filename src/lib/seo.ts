@@ -9,7 +9,7 @@ export function abs(path: string): string {
   return new URL(path, SITE_URL).toString();
 }
 
-export function buildMusicGroupJsonLd(artist: ArtistData): Record<string, unknown> {
+export function buildMusicGroupJsonLd(artist: ArtistData, lang: 'tr' | 'en' = 'tr'): Record<string, unknown> {
   const sameAs = Object.values(artist.socials ?? {}).filter(
     (v): v is string => typeof v === 'string' && v.length > 0,
   );
@@ -20,7 +20,8 @@ export function buildMusicGroupJsonLd(artist: ArtistData): Record<string, unknow
     url: SITE_URL,
   };
 
-  if (artist.bio) ld.description = normalizeBioText(artist.bio);
+  const bio = lang === 'en' ? (artist.bioEn ?? artist.bio) : artist.bio;
+  if (bio) ld.description = normalizeBioText(bio);
   if (sameAs.length > 0) ld.sameAs = sameAs;
 
   return ld;

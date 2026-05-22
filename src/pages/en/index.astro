@@ -25,7 +25,7 @@ const alternates = [
 
 <BaseLayout title="Sentezhane" lang={lang}>
   <SeoMeta slot="head" title={`Sentezhane — ${t(lang, 'home.subtitle')}`} canonical="/en/" ogType="website" lang={lang} alternates={alternates} />
-  <JsonLd slot="head" data={buildMusicGroupJsonLd(artist.data)} />
+  <JsonLd slot="head" data={buildMusicGroupJsonLd(artist.data, 'en')} />
 
   <section class="hero">
     <h1>Sentezhane</h1>

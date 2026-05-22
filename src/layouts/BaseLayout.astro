@@ -6,6 +6,7 @@ import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MetaPixel from '../components/MetaPixel.astro';
+import GoogleTag from '../components/GoogleTag.astro';
 import type { Locale } from '../i18n/strings';
 
 interface Props {
@@ -27,6 +28,7 @@ const { title, description, lang = 'tr' } = Astro.props;
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#7c3aed" />
     <MetaPixel />
+    <GoogleTag />
     <slot name="head" />
   </head>
   <body>

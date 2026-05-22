@@ -15,6 +15,7 @@ const artist = defineCollection({
     transform: (row) => ({
       name: row.name,
       bio: row.bio,
+      bioEn: row.bioEn,
       metaPixelId: row.metaPixelId,
       socials: {
         twitter: row.twitter,
@@ -28,6 +29,7 @@ const artist = defineCollection({
   schema: z.object({
     name: z.string().min(1),
     bio: optionalStr,
+    bioEn: optionalStr,
     metaPixelId: optionalStr,
     socials: z.object({
       twitter: optionalUrl,
