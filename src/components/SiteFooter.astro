@@ -1,12 +1,20 @@
 ---
 import { getEntry } from 'astro:content';
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'tr' } = Astro.props;
 const artist = await getEntry('artist', 'artist');
 const year = new Date().getFullYear();
 const name = artist?.data.name ?? 'Sentezhane';
 ---
 
 <footer class="site-footer">
-  <p>&copy; {year} {name}</p>
+  <p>&copy; {year} {name}. {t(lang, 'footer.rights')}</p>
 </footer>
 
 <style>

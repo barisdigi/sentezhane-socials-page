@@ -8,7 +8,14 @@ import IconInstagram from './icons/IconInstagram.astro';
 import IconYouTube from './icons/IconYouTube.astro';
 import IconTikTok from './icons/IconTikTok.astro';
 import IconX from './icons/IconX.astro';
+import type { Locale } from '../i18n/strings';
 
+interface Props {
+  lang?: Locale;
+}
+
+const { lang: _lang = 'tr' } = Astro.props;
+void _lang;
 const artist = await getEntry('artist', 'artist');
 
 const platformLabels: Record<string, string> = {

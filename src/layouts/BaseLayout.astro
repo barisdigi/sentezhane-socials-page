@@ -6,16 +6,18 @@ import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MetaPixel from '../components/MetaPixel.astro';
+import type { Locale } from '../i18n/strings';
 
 interface Props {
   title: string;
   description?: string;
+  lang?: Locale;
 }
 
-const { title, description } = Astro.props;
+const { title, description, lang = 'tr' } = Astro.props;
 ---
 
-<html lang="tr">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,10 +30,23 @@ const { title, description } = Astro.props;
     <slot name="head" />
   </head>
   <body>
-    <SiteHeader />
+    <script is:inline>
+      (function () {
+        try {
+          if (sessionStorage.getItem('s-lang-checked')) return;
+          sessionStorage.setItem('s-lang-checked', '1');
+          var p = location.pathname;
+          if (p === '/en' || p === '/en/' || p.indexOf('/en/') === 0) return;
+          var lang = (navigator.language || 'en').toLowerCase();
+          if (lang === 'tr' || lang.indexOf('tr-') === 0) return;
+          location.replace('/en' + p + location.search);
+        } catch (e) { void e; }
+      })();
+    </script>
+    <SiteHeader lang={lang} />
     <main>
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter lang={lang} />
   </body>
 </html>

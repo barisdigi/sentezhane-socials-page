@@ -2,13 +2,15 @@
 import ReleaseCard from './ReleaseCard.astro';
 import { displayTitle } from '../lib/format';
 import type { getAllReleases } from '../lib/releases';
+import type { Locale } from '../i18n/strings';
 
 interface Props {
   releases: Awaited<ReturnType<typeof getAllReleases>>;
   trackCounts?: Record<string, number>;
+  lang?: Locale;
 }
 
-const { releases, trackCounts = {} } = Astro.props;
+const { releases, trackCounts = {}, lang = 'tr' } = Astro.props;
 ---
 
 <section class="release-grid">
@@ -19,6 +21,7 @@ const { releases, trackCounts = {} } = Astro.props;
       type={r.data.type}
       cover={r.data.cover}
       trackCount={trackCounts[r.data.slug]}
+      lang={lang}
     />
   ))}
 </section>

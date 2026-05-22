@@ -1,10 +1,18 @@
 ---
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'tr' } = Astro.props;
 ---
 
 <div class="filter-chips">
-  <button class="chip" data-filter="all" aria-pressed="true">Hepsi</button>
-  <button class="chip" data-filter="album" aria-pressed="false">Albümler</button>
-  <button class="chip" data-filter="single" aria-pressed="false">Singlelar</button>
+  <button class="chip" data-filter="all" aria-pressed="true">{t(lang, 'filter.all')}</button>
+  <button class="chip" data-filter="album" aria-pressed="false">{t(lang, 'filter.albums')}</button>
+  <button class="chip" data-filter="single" aria-pressed="false">{t(lang, 'filter.singles')}</button>
 </div>
 
 <script>

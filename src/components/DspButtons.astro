@@ -3,14 +3,17 @@ import type { Release, Track } from '../lib/types';
 import { getDspLinks } from '../lib/dsp';
 import IconSpotify from './icons/IconSpotify.astro';
 import IconAppleMusic from './icons/IconAppleMusic.astro';
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
 
 interface Props {
   links: Release['data']['links'] | Track['data']['links'];
   releaseSlug: string;
   trackSlug?: string;
+  lang?: Locale;
 }
 
-const { links, releaseSlug, trackSlug } = Astro.props;
+const { links, releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
 const dspLinks = getDspLinks(links);
 
 const iconMap: Record<string, typeof IconSpotify> = {
@@ -21,8 +24,8 @@ const iconMap: Record<string, typeof IconSpotify> = {
 
 {dspLinks.length > 0 && (
   <section class="dsp-section">
-    <h2 class="dsp-heading">Dinle</h2>
-    <p class="dsp-cta">Sevdiğin platformda dinle</p>
+    <h2 class="dsp-heading">{t(lang, 'dsp.heading')}</h2>
+    <p class="dsp-cta">{t(lang, 'dsp.cta')}</p>
     <div class="dsp-buttons">
       {dspLinks.map((dsp) => {
         const Icon = iconMap[dsp.key];
@@ -35,6 +38,7 @@ const iconMap: Record<string, typeof IconSpotify> = {
             data-dsp={dsp.key}
             data-release-slug={releaseSlug}
             data-track-slug={trackSlug}
+            data-lang={lang}
           >
             {Icon && <Icon size={20} />}
             <span>{dsp.label}</span>
@@ -54,8 +58,9 @@ const iconMap: Record<string, typeof IconSpotify> = {
     const dsp = anchor.dataset.dsp;
     const releaseSlug = anchor.dataset.releaseSlug;
     const trackSlug = anchor.dataset.trackSlug;
+    const lang = anchor.dataset.lang;
     if (dsp && releaseSlug) {
-      track({ name: 'ClickDsp', params: { dsp, releaseSlug, trackSlug: trackSlug || undefined } });
+      track({ name: 'ClickDsp', params: { dsp, releaseSlug, trackSlug: trackSlug || undefined, lang: lang || undefined } });
     }
   });
 </script>

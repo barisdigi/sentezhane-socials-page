@@ -1,15 +1,18 @@
 ---
+import type { Locale } from '../i18n/strings';
+
 interface Props {
   videoId: string;
   title?: string;
   releaseSlug: string;
   trackSlug?: string;
+  lang?: Locale;
 }
 
-const { videoId, title = 'YouTube video player', releaseSlug, trackSlug } = Astro.props;
+const { videoId, title = 'YouTube video player', releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
 ---
 
-<div class="youtube-embed" data-video-id={videoId} data-release-slug={releaseSlug} data-track-slug={trackSlug} data-title={title}></div>
+<div class="youtube-embed" data-video-id={videoId} data-release-slug={releaseSlug} data-track-slug={trackSlug} data-title={title} data-lang={lang}></div>
 
 <script>
   import { track } from '../lib/tracking';
@@ -47,6 +50,7 @@ const { videoId, title = 'YouTube video player', releaseSlug, trackSlug } = Astr
       const releaseSlug = el.dataset.releaseSlug!;
       const trackSlug = el.dataset.trackSlug || undefined;
       const title = el.dataset.title || 'YouTube video player';
+      const lang = (el.dataset.lang as 'tr' | 'en') || 'tr';
 
       const YT = getYT();
       const Player = YT.Player;
@@ -63,7 +67,7 @@ const { videoId, title = 'YouTube video player', releaseSlug, trackSlug } = Astr
               const iframe = event.target.getIframe();
               if (!iframe || iframe.dataset.fired) return;
               iframe.dataset.fired = '1';
-              track({ name: 'VideoPlay', params: { releaseSlug, trackSlug } });
+              track({ name: 'VideoPlay', params: { releaseSlug, trackSlug, lang } });
             }
           },
         },

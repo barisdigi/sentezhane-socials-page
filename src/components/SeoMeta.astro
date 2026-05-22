@@ -1,5 +1,11 @@
 ---
 import { abs } from '../lib/seo';
+import type { Locale } from '../i18n/strings';
+
+interface Alternate {
+  hreflang: string;
+  href: string;
+}
 
 interface Props {
   title: string;
@@ -7,19 +13,26 @@ interface Props {
   canonical: string;
   image?: string;
   ogType?: 'website' | 'music.album' | 'music.song';
+  lang?: Locale;
+  alternates?: Alternate[];
 }
 
-const { title, description, canonical, image, ogType = 'website' } = Astro.props;
+const { title, description, canonical, image, ogType = 'website', lang = 'tr', alternates = [] } = Astro.props;
 
 const absCanonical = abs(canonical);
 const absImage = image ? abs(image) : undefined;
 const twitterCard = absImage ? 'summary_large_image' : 'summary';
+const ogLocale = lang === 'en' ? 'en_US' : 'tr_TR';
 ---
 
 <link rel="canonical" href={absCanonical} />
+{alternates.map((alt) => (
+  <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+))}
 <meta property="og:title" content={title} />
 <meta property="og:url" content={absCanonical} />
 <meta property="og:type" content={ogType} />
+<meta property="og:locale" content={ogLocale} />
 <meta property="og:site_name" content="Sentezhane" />
 {description && <meta property="og:description" content={description} />}
 {absImage && <meta property="og:image" content={absImage} />}

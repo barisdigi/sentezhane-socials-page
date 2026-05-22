@@ -1,17 +1,16 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import FilterChips from '../components/FilterChips.astro';
-import ReleaseGrid from '../components/ReleaseGrid.astro';
-import ArtistBio from '../components/ArtistBio.astro';
-import SeoMeta from '../components/SeoMeta.astro';
-import JsonLd from '../components/JsonLd.astro';
-import { getAllReleases, getReleaseTrackCounts } from '../lib/releases';
-import { buildMusicGroupJsonLd } from '../lib/seo';
-import { abs } from '../lib/seo';
-import { t } from '../i18n/strings';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilterChips from '../../components/FilterChips.astro';
+import ReleaseGrid from '../../components/ReleaseGrid.astro';
+import ArtistBio from '../../components/ArtistBio.astro';
+import SeoMeta from '../../components/SeoMeta.astro';
+import JsonLd from '../../components/JsonLd.astro';
+import { getAllReleases, getReleaseTrackCounts } from '../../lib/releases';
+import { buildMusicGroupJsonLd, abs } from '../../lib/seo';
+import { t } from '../../i18n/strings';
 
-const lang = 'tr' as const;
+const lang = 'en' as const;
 const releases = await getAllReleases();
 const trackCounts = await getReleaseTrackCounts();
 const artistEntries = await getCollection('artist');
@@ -25,7 +24,7 @@ const alternates = [
 ---
 
 <BaseLayout title="Sentezhane" lang={lang}>
-  <SeoMeta slot="head" title="Sentezhane — Diskografi" canonical="/" ogType="website" lang={lang} alternates={alternates} />
+  <SeoMeta slot="head" title={`Sentezhane — ${t(lang, 'home.subtitle')}`} canonical="/en/" ogType="website" lang={lang} alternates={alternates} />
   <JsonLd slot="head" data={buildMusicGroupJsonLd(artist.data)} />
 
   <section class="hero">

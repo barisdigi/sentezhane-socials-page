@@ -4,15 +4,18 @@ import IconX from './icons/IconX.astro';
 import IconWhatsApp from './icons/IconWhatsApp.astro';
 import IconFacebook from './icons/IconFacebook.astro';
 import IconCopy from './icons/IconCopy.astro';
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
 
 interface Props {
   url: string;
   title: string;
   releaseSlug: string;
   trackSlug?: string;
+  lang?: Locale;
 }
 
-const { url, title, releaseSlug, trackSlug } = Astro.props;
+const { url, title, releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
 const text = `${title} — Sentezhane`;
 
 const networkLabels: Record<string, string> = {
@@ -28,8 +31,8 @@ const networkIcons: Record<string, typeof IconX> = {
 };
 ---
 
-<h2 class="share-heading">Paylaş</h2>
-<div class="share-buttons" data-release-slug={releaseSlug} data-track-slug={trackSlug ?? ''} data-share-url={url} data-share-text={text}>
+<h2 class="share-heading">{t(lang, 'share.heading')}</h2>
+<div class="share-buttons" data-release-slug={releaseSlug} data-track-slug={trackSlug ?? ''} data-share-url={url} data-share-text={text} data-lang={lang} data-label-copy={t(lang, 'share.copy')} data-label-copied={t(lang, 'share.copied')}>
   {SHARE_NETWORKS.map((network) => {
     const Icon = networkIcons[network];
     return (
@@ -41,7 +44,7 @@ const networkIcons: Record<string, typeof IconX> = {
   })}
   <button type="button" class="share-btn" data-share-network="copy">
     <IconCopy size={16} />
-    <span>Linki Kopyala</span>
+    <span>{t(lang, 'share.copy')}</span>
   </button>
 </div>
 
@@ -59,19 +62,22 @@ const networkIcons: Record<string, typeof IconX> = {
     const releaseSlug = container.dataset.releaseSlug!;
     const trackSlug = container.dataset.trackSlug || undefined;
     const shareUrl = container.dataset.shareUrl!;
+    const lang = container.dataset.lang || undefined;
 
-    track({ name: 'Share', params: { network, releaseSlug, trackSlug } });
+    track({ name: 'Share', params: { network, releaseSlug, trackSlug, lang } });
 
     if (network === 'copy') {
       event.preventDefault();
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareUrl);
       }
-      const original = el.textContent;
-      el.textContent = 'Kopyalandı';
-      setTimeout(() => {
-        el.textContent = original;
-      }, 2000);
+      const labelCopy = container.dataset.labelCopy || 'Linki Kopyala';
+      const labelCopied = container.dataset.labelCopied || 'Kopyalandı';
+      const span = el.querySelector('span');
+      if (span) {
+        span.textContent = labelCopied;
+        setTimeout(() => { span.textContent = labelCopy; }, 2000);
+      }
     }
   });
 </script>

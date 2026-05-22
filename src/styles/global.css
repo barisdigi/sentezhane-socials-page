@@ -567,3 +567,23 @@ main > * + * {
     gap: var(--space-sm);
   }
 }
+
+/* Language Switcher */
+.lang-switch {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.lang-switch a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+.lang-switch a[aria-current="true"] {
+  color: var(--fg);
+  background: var(--bg-elev);
+}
+.lang-switch a:hover { color: var(--fg); }

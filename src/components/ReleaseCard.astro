@@ -1,5 +1,7 @@
 ---
 import Cover from './Cover.astro';
+import type { Locale } from '../i18n/strings';
+import { t, localizedPath } from '../i18n/strings';
 
 interface Props {
   slug: string;
@@ -7,14 +9,16 @@ interface Props {
   type: 'album' | 'single';
   cover?: string;
   trackCount?: number;
+  lang?: Locale;
 }
 
-const { slug, title, type, cover, trackCount } = Astro.props;
-const typeLabel = type === 'album' ? 'Albüm' : 'Single';
-const metaLine = type === 'album' && trackCount ? `${typeLabel} · ${trackCount} şarkı` : typeLabel;
+const { slug, title, type, cover, trackCount, lang = 'tr' } = Astro.props;
+const typeLabel = t(lang, `release.type.${type}`);
+const metaLine = type === 'album' && trackCount ? `${typeLabel} · ${t(lang, 'release.tracks.count', { count: trackCount })}` : typeLabel;
+const href = localizedPath(lang, `/${slug}/`);
 ---
 
-<a class="release-card" href={`/${slug}/`} data-type={type}>
+<a class="release-card" href={href} data-type={type}>
   {cover && <Cover src={cover} alt={title} width={400} />}
   <div class="release-card__body">
     <h3>{title}</h3>

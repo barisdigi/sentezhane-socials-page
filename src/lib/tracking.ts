@@ -5,9 +5,9 @@ declare global {
 }
 
 export type TrackEvent =
-  | { name: 'ClickDsp'; params: { dsp: string; releaseSlug: string; trackSlug?: string } }
-  | { name: 'VideoPlay'; params: { releaseSlug: string; trackSlug?: string } }
-  | { name: 'Share'; params: { network: string; releaseSlug: string; trackSlug?: string } };
+  | { name: 'ClickDsp'; params: { dsp: string; releaseSlug: string; trackSlug?: string; lang?: string } }
+  | { name: 'VideoPlay'; params: { releaseSlug: string; trackSlug?: string; lang?: string } }
+  | { name: 'Share'; params: { network: string; releaseSlug: string; trackSlug?: string; lang?: string } };
 
 export function track(event: TrackEvent): void {
   if (typeof window === 'undefined') return;

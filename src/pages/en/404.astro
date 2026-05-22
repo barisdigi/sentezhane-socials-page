@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { t } from '../i18n/strings';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t } from '../../i18n/strings';
 
-const lang = 'tr' as const;
+const lang = 'en' as const;
 ---
 
 <BaseLayout title={t(lang, '404.title')} lang={lang}>
@@ -10,7 +10,7 @@ const lang = 'tr' as const;
   <section class="not-found">
     <h1>{t(lang, '404.heading')}</h1>
     <p>{t(lang, '404.message')}</p>
-    <a href="/" class="dsp-btn">{t(lang, '404.back')}</a>
+    <a href="/en/" class="dsp-btn">{t(lang, '404.back')}</a>
   </section>
 </BaseLayout>
 

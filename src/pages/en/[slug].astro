@@ -1,20 +1,20 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
-import { getAllReleases, getReleaseBySlug, getTracksForAlbum } from '../lib/releases';
-import { displayTitle } from '../lib/format';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Cover from '../components/Cover.astro';
-import DspButtons from '../components/DspButtons.astro';
-import YouTubeEmbed from '../components/YouTubeEmbed.astro';
-import TrackList from '../components/TrackList.astro';
-import SeoMeta from '../components/SeoMeta.astro';
-import JsonLd from '../components/JsonLd.astro';
-import { buildMusicAlbumJsonLd, buildMusicRecordingJsonLd, abs } from '../lib/seo';
-import ShareButtons from '../components/ShareButtons.astro';
-import { t, localizedPath } from '../i18n/strings';
+import { getAllReleases, getReleaseBySlug, getTracksForAlbum } from '../../lib/releases';
+import { displayTitle } from '../../lib/format';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Cover from '../../components/Cover.astro';
+import DspButtons from '../../components/DspButtons.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+import TrackList from '../../components/TrackList.astro';
+import SeoMeta from '../../components/SeoMeta.astro';
+import JsonLd from '../../components/JsonLd.astro';
+import { buildMusicAlbumJsonLd, buildMusicRecordingJsonLd, abs } from '../../lib/seo';
+import ShareButtons from '../../components/ShareButtons.astro';
+import { t } from '../../i18n/strings';
 
-const lang = 'tr' as const;
+const lang = 'en' as const;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const releases = await getAllReleases();
@@ -30,19 +30,20 @@ const tracks = release.data.type === 'album' ? await getTracksForAlbum(String(sl
 const title = displayTitle(release.data);
 const typeLabel = t(lang, `release.type.${release.data.type}`);
 const formattedDate = release.data.releaseDate
-  ? new Intl.DateTimeFormat('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(release.data.releaseDate))
+  ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(release.data.releaseDate))
   : undefined;
 
 const artistEntries = await getCollection('artist');
 const artistName = artistEntries[0]?.data.name ?? 'Sentezhane';
 
-const canonical = '/' + release.data.slug + '/';
+const trCanonical = '/' + release.data.slug + '/';
+const canonical = '/en/' + release.data.slug + '/';
 const ogType = release.data.type === 'album' ? 'music.album' : 'music.song';
 
 const alternates = [
-  { hreflang: 'tr', href: abs(canonical) },
-  { hreflang: 'en', href: abs(localizedPath('en', canonical)) },
-  { hreflang: 'x-default', href: abs(canonical) },
+  { hreflang: 'tr', href: abs(trCanonical) },
+  { hreflang: 'en', href: abs(canonical) },
+  { hreflang: 'x-default', href: abs(trCanonical) },
 ];
 
 const jsonLdData = release.data.type === 'album'
@@ -77,19 +78,19 @@ const jsonLdData = release.data.type === 'album'
       <DspButtons links={release.data.links} releaseSlug={release.data.slug} lang={lang} />
 
       {release.data.youtubeVideoId && (
-        <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} lang="tr" />
+        <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} lang="en" />
       )}
 
       {release.data.type === 'album' && tracks.length > 0 && (
         <>
-          <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} lang={lang} />
+          <ShareButtons url={abs('/en/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} lang={lang} />
           <h2>{t(lang, 'release.tracks.heading')}</h2>
           <TrackList albumSlug={release.data.slug} tracks={tracks} lang={lang} />
         </>
       )}
 
       {release.data.type !== 'album' && (
-        <ShareButtons url={abs('/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} lang={lang} />
+        <ShareButtons url={abs('/en/' + release.data.slug + '/')} title={title} releaseSlug={release.data.slug} lang={lang} />
       )}
     </div>
   </article>
