@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "npm run optimize:covers && astro dev",
     "build": "astro check && astro build",
+    "prebuild": "node scripts/optimize-covers.mjs",
+    "optimize:covers": "node scripts/optimize-covers.mjs",
     "preview": "astro preview",
     "lint": "eslint . --ext .js,.ts,.astro",
     "format": "prettier --write ."

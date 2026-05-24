@@ -5,10 +5,24 @@ export default defineConfig({
   site: 'https://sentezhane.com',
   output: 'static',
   trailingSlash: 'always',
+  compressHTML: true,
   i18n: {
     defaultLocale: 'tr',
     locales: ['tr', 'en'],
     routing: { prefixDefaultLocale: false },
+  },
+  build: {
+    inlineStylesheets: 'auto',
+  },
+  vite: {
+    build: {
+      minify: 'esbuild',
+      cssMinify: 'esbuild',
+      target: 'es2020',
+    },
+    esbuild: {
+      legalComments: 'none',
+    },
   },
   integrations: [
     sitemap({
