@@ -7,11 +7,14 @@
     "build": "astro check && astro build",
     "prebuild": "node scripts/optimize-covers.mjs",
     "optimize:covers": "node scripts/optimize-covers.mjs",
-    "preview": "astro preview",
+    "preview": "npm run build && wrangler dev",
     "lint": "eslint . --ext .js,.ts,.astro",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "12",
     "@astrojs/sitemap": "^3.7.2",
     "@fontsource/inter": "^5.2.8",
     "astro": "^5.7.0",
@@ -26,6 +29,7 @@
     "eslint-plugin-astro": "^1.0.0",
     "prettier": "^3.3.0",
     "prettier-plugin-astro": "^0.14.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "wrangler": "^4.94.0"
   }
 }
