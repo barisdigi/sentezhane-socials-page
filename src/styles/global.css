@@ -392,23 +392,174 @@ a:hover {
   text-decoration: none;
 }
 
-/* Primary DSP (Spotify) — visually dominant */
+/* Primary DSP (Spotify) — visually dominant, matches the sticky CTA */
 .dsp-btn--primary {
-  background: #1ed760;
-  border-color: #1ed760;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #25e36a 0%, #1ed760 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #08120c;
   font-size: 1.05rem;
-  min-height: 52px;
+  letter-spacing: -0.01em;
+  min-height: 54px;
   padding: 0.75rem 1.5rem;
-  box-shadow: 0 4px 16px rgba(30, 215, 96, 0.25);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+    0 10px 24px -8px rgba(30, 215, 96, 0.55),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
+  animation: dsp-pulse 2.4s ease-in-out infinite, dsp-shake 6s ease-in-out infinite;
+  animation-delay: 0s, -4.5s;
+  transform-origin: center;
+  will-change: transform, box-shadow;
 }
 
 .dsp-btn--primary:hover {
-  background: #1fdf64;
-  border-color: #1fdf64;
+  background: linear-gradient(180deg, #2bea72 0%, #1fdf64 100%);
+  border-color: rgba(255, 255, 255, 0.25);
   color: #08120c;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(30, 215, 96, 0.35);
+  transform: translateY(-1px) scale(1.02);
+  animation-play-state: paused;
+}
+
+.dsp-btn--primary:active {
+  transform: scale(0.98);
+}
+
+/* Twinkle / shimmer sweep across the button */
+.dsp-btn__sparkle {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  clip-path: inset(0 round 999px);
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: dsp-twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes dsp-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(30, 215, 96, 0.25);
+  }
+  50% {
+    box-shadow: 0 6px 24px rgba(30, 215, 96, 0.55);
+  }
+}
+
+@keyframes dsp-twinkle {
+  0% { transform: translateX(-120%); }
+  60% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes dsp-shake {
+  0%, 88%, 100% { transform: translate(0, 0) rotate(0); }
+  90% { transform: translate(-2px, 0) rotate(-1.2deg); }
+  92% { transform: translate(2px, 0) rotate(1.2deg); }
+  94% { transform: translate(-2px, 0) rotate(-0.8deg); }
+  96% { transform: translate(2px, 0) rotate(0.8deg); }
+  98% { transform: translate(-1px, 0) rotate(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dsp-btn--primary,
+  .dsp-btn__sparkle,
+  .sticky-cta__btn,
+  .sticky-cta__sparkle {
+    animation: none;
+  }
+}
+
+/* Sticky mobile CTA bar */
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  padding: 0 max(env(safe-area-inset-left, 0px), 1rem)
+           calc(0.75rem + env(safe-area-inset-bottom, 0px))
+           max(env(safe-area-inset-right, 0px), 1rem);
+  display: none;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(110%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.sticky-cta.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sticky-cta__btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 26rem;
+  min-height: 54px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #08120c;
+  background: linear-gradient(180deg, #25e36a 0%, #1ed760 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+    0 10px 24px -8px rgba(30, 215, 96, 0.55),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
+  animation: dsp-pulse 2.8s ease-in-out infinite;
+  will-change: transform, box-shadow;
+}
+
+.sticky-cta__btn:active {
+  transform: scale(0.98);
+}
+
+.sticky-cta__sparkle {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  clip-path: inset(0 round 999px);
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: dsp-twinkle 3.2s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  .sticky-cta {
+    display: flex;
+  }
+  /* Leave room above the footer so the bar doesn't cover content */
+  main {
+    padding-bottom: 6rem;
+  }
 }
 
 /* YouTube Embed */
@@ -626,7 +777,7 @@ main > * + * {
     padding-block-start: var(--space-lg);
   }
 
-  .dsp-btn,
+  .dsp-btn:not(.dsp-btn--primary),
   .share-btn {
     font-size: 0.875rem;
     padding: 0.5rem 1rem;

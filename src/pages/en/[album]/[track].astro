@@ -7,6 +7,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Cover from '../../../components/Cover.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import DspButtons from '../../../components/DspButtons.astro';
+import StickyMobileCta from '../../../components/StickyMobileCta.astro';
 import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
 import SeoMeta from '../../../components/SeoMeta.astro';
 import JsonLd from '../../../components/JsonLd.astro';
@@ -95,4 +96,5 @@ const jsonLdData = buildMusicRecordingJsonLd({
       </div>
     </div>
   </article>
+  <StickyMobileCta links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} lang={lang} />
 </BaseLayout>

@@ -6,6 +6,7 @@ import { displayTitle } from '../lib/format';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Cover from '../components/Cover.astro';
 import DspButtons from '../components/DspButtons.astro';
+import StickyMobileCta from '../components/StickyMobileCta.astro';
 import YouTubeEmbed from '../components/YouTubeEmbed.astro';
 import TrackList from '../components/TrackList.astro';
 import SeoMeta from '../components/SeoMeta.astro';
@@ -93,4 +94,5 @@ const jsonLdData = release.data.type === 'album'
       )}
     </div>
   </article>
+  <StickyMobileCta links={release.data.links} releaseSlug={release.data.slug} lang={lang} />
 </BaseLayout>

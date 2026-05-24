@@ -1,0 +1,99 @@
+---
+import type { Release, Track } from '../lib/types';
+import { getDspLinks } from '../lib/dsp';
+import IconSpotify from './icons/IconSpotify.astro';
+import IconAppleMusic from './icons/IconAppleMusic.astro';
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
+
+interface Props {
+  links: Release['data']['links'] | Track['data']['links'];
+  releaseSlug: string;
+  trackSlug?: string;
+  lang?: Locale;
+}
+
+const { links, releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
+const dspLinks = getDspLinks(links);
+const primary = dspLinks[0];
+const iconMap: Record<string, typeof IconSpotify> = {
+  spotify: IconSpotify,
+  appleMusic: IconAppleMusic,
+};
+const Icon = primary ? iconMap[primary.key] : undefined;
+const ctaLabel = primary
+  ? (primary.key === 'spotify'
+      ? t(lang, 'dsp.listenOn.spotify')
+      : t(lang, 'dsp.listenOn.appleMusic'))
+  : t(lang, 'dsp.cta');
+---
+
+{primary && (
+  <div class="sticky-cta" data-sticky-cta aria-hidden="true">
+    <a
+      href={primary.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="sticky-cta__btn"
+      data-dsp={primary.key}
+      data-release-slug={releaseSlug}
+      data-track-slug={trackSlug}
+      data-lang={lang}
+      data-sticky="1"
+    >
+      {Icon && <Icon size={22} />}
+      <span>{ctaLabel}</span>
+      <span class="sticky-cta__sparkle" aria-hidden="true"></span>
+    </a>
+  </div>
+)}
+
+<script>
+  import { track } from '../lib/tracking';
+
+  const bar = document.querySelector<HTMLElement>('[data-sticky-cta]');
+  // Observe the inline Spotify button; show the sticky bar only when it's out of view.
+  const inline = document.querySelector<HTMLElement>('.dsp-btn--primary');
+
+  if (bar) {
+    const setVisible = (visible: boolean) => {
+      bar.classList.toggle('is-visible', visible);
+      bar.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    };
+
+    if (inline && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            setVisible(!entry.isIntersecting);
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px', threshold: 0 }
+      );
+      io.observe(inline);
+    } else {
+      setVisible(true);
+    }
+
+    bar.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[data-dsp]');
+      if (!a) return;
+      const dsp = a.dataset.dsp;
+      const releaseSlug = a.dataset.releaseSlug;
+      const trackSlug = a.dataset.trackSlug;
+      const lang = a.dataset.lang;
+      if (dsp && releaseSlug) {
+        track({
+          name: 'ClickDsp',
+          params: {
+            dsp,
+            releaseSlug,
+            trackSlug: trackSlug || undefined,
+            lang: lang || undefined,
+            placement: 'sticky',
+          },
+        });
+      }
+    });
+  }
+</script>

@@ -24,12 +24,13 @@ const iconMap: Record<string, typeof IconSpotify> = {
 
 {dspLinks.length > 0 && (
   <section class="dsp-section">
-    <h2 class="dsp-heading">{t(lang, 'dsp.heading')}</h2>
-    <p class="dsp-cta">{t(lang, 'dsp.cta')}</p>
     <div class="dsp-buttons">
       {dspLinks.map((dsp) => {
         const Icon = iconMap[dsp.key];
         const isPrimary = dsp.key === 'spotify';
+        const label = dsp.key === 'spotify'
+          ? t(lang, 'dsp.listenOn.spotify')
+          : t(lang, 'dsp.listenOn.appleMusic');
         return (
           <a
             href={dsp.url}
@@ -42,7 +43,8 @@ const iconMap: Record<string, typeof IconSpotify> = {
             data-lang={lang}
           >
             {Icon && <Icon size={isPrimary ? 24 : 20} />}
-            <span>{dsp.label}</span>
+            <span>{label}</span>
+            {isPrimary && <span class="dsp-btn__sparkle" aria-hidden="true"></span>}
           </a>
         );
       })}
