@@ -76,13 +76,14 @@ const iconMap: Record<string, typeof IconSpotify> = {
     });
   }
 
-  // On mobile, rewrite https DSP URLs to their native app schemes so the
-  // installed app handles the link instead of the in-app webview / browser.
+  // On mobile, rewrite https DSP URLs to their native app schemes (only
+  // where the platform actually has a registered handler) so the installed
+  // app handles the link instead of the in-app webview / browser.
   if (isMobile(platform)) {
     document.querySelectorAll<HTMLAnchorElement>('a[data-dsp]').forEach((a) => {
       const key = a.dataset.dsp as DspKey | undefined;
       if (!key) return;
-      const deepLink = getNativeDeepLink(key, a.href);
+      const deepLink = getNativeDeepLink(key, a.href, platform);
       if (deepLink !== a.href) a.href = deepLink;
     });
   }

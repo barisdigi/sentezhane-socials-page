@@ -77,12 +77,13 @@ const labelFor = (key: string) =>
       });
     }
 
-    // Rewrite to native app schemes on mobile so installed apps capture the tap.
+    // Rewrite to native app schemes on mobile (only where the platform has a
+    // registered handler) so installed apps capture the tap.
     if (isMobile(platform)) {
       bar.querySelectorAll<HTMLAnchorElement>('a[data-dsp]').forEach((a) => {
         const key = a.dataset.dsp as DspKey | undefined;
         if (!key) return;
-        const deepLink = getNativeDeepLink(key, a.href);
+        const deepLink = getNativeDeepLink(key, a.href, platform);
         if (deepLink !== a.href) a.href = deepLink;
       });
     }
