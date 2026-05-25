@@ -534,6 +534,12 @@ a:hover {
   transform: scale(0.98);
 }
 
+/* The `hidden` attribute must beat `display: flex` so only the
+   platform-appropriate sticky button is shown. */
+.sticky-cta__btn[hidden] {
+  display: none !important;
+}
+
 .sticky-cta__sparkle {
   position: absolute;
   inset: 0;
