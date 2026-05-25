@@ -31,10 +31,14 @@ export function getNativeDeepLink(key: DspKey, url: string): string {
   try {
     const u = new URL(url);
     if (key === 'spotify' && u.hostname === 'open.spotify.com') {
-      // /track/<id> -> spotify:track:<id> ; /album/<id> -> spotify:album:<id>
-      const path = u.pathname.replace(/^\/+|\/+$/g, '');
+      // Strip locale prefix (e.g. /intl-tr/) and trim slashes so we get the
+      // canonical <type>/<id> path. Valid URIs look like spotify:track:<id>.
+      let path = u.pathname.replace(/^\/+|\/+$/g, '');
+      path = path.replace(/^intl-[a-z]{2}(?:-[a-z]{2})?\//i, '');
       if (!path) return url;
-      return `spotify:${path.replace(/\//g, ':')}`;
+      const [type, id] = path.split('/');
+      if (!type || !id) return url;
+      return `spotify:${type}:${id}`;
     }
     if (key === 'appleMusic' && u.hostname === 'music.apple.com') {
       // Apple Music's documented scheme: music://music.apple.com/...
