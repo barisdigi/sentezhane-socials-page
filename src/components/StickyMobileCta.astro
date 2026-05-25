@@ -15,52 +15,87 @@ interface Props {
 
 const { links, releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
 const dspLinks = getDspLinks(links);
-const primary = dspLinks[0];
 const iconMap: Record<string, typeof IconSpotify> = {
   spotify: IconSpotify,
   appleMusic: IconAppleMusic,
 };
-const Icon = primary ? iconMap[primary.key] : undefined;
-const ctaLabel = primary
-  ? (primary.key === 'spotify'
-      ? t(lang, 'dsp.listenOn.spotify')
-      : t(lang, 'dsp.listenOn.appleMusic'))
-  : t(lang, 'dsp.cta');
+const labelFor = (key: string) =>
+  key === 'spotify'
+    ? t(lang, 'dsp.listenOn.spotify')
+    : key === 'appleMusic'
+      ? t(lang, 'dsp.listenOn.appleMusic')
+      : t(lang, 'dsp.cta');
 ---
 
-{primary && (
+{dspLinks.length > 0 && (
   <div class="sticky-cta" data-sticky-cta aria-hidden="true">
-    <a
-      href={primary.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="sticky-cta__btn"
-      data-dsp={primary.key}
-      data-release-slug={releaseSlug}
-      data-track-slug={trackSlug}
-      data-lang={lang}
-      data-sticky="1"
-    >
-      {Icon && <Icon size={22} />}
-      <span>{ctaLabel}</span>
-      <span class="sticky-cta__sparkle" aria-hidden="true"></span>
-    </a>
+    {dspLinks.map((dsp, i) => {
+      const Icon = iconMap[dsp.key];
+      return (
+        <a
+          href={dsp.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="sticky-cta__btn"
+          data-dsp={dsp.key}
+          data-release-slug={releaseSlug}
+          data-track-slug={trackSlug}
+          data-lang={lang}
+          data-sticky="1"
+          data-sticky-slot={dsp.key}
+          hidden={i !== 0}
+        >
+          {Icon && <Icon size={22} />}
+          <span>{labelFor(dsp.key)}</span>
+          <span class="sticky-cta__sparkle" aria-hidden="true"></span>
+        </a>
+      );
+    })}
   </div>
 )}
 
 <script>
   import { track } from '../lib/tracking';
+  import { detectPlatform, isMobile } from '../lib/platform';
+  import { getNativeDeepLink } from '../lib/dsp';
+
+  type DspKey = 'spotify' | 'appleMusic';
 
   const bar = document.querySelector<HTMLElement>('[data-sticky-cta]');
-  // Observe the inline Spotify button; show the sticky bar only when it's out of view.
-  const inline = document.querySelector<HTMLElement>('.dsp-btn--primary');
 
   if (bar) {
+    const platform = detectPlatform();
+
+    // Pick the preferred DSP for this platform. iOS → Apple Music if present,
+    // otherwise fall back to whatever is already visible (Spotify by default).
+    const preferredKey: DspKey = platform === 'ios' ? 'appleMusic' : 'spotify';
+    const slots = Array.from(bar.querySelectorAll<HTMLElement>('[data-sticky-slot]'));
+    const preferred = slots.find((el) => el.dataset.stickySlot === preferredKey);
+    if (preferred) {
+      slots.forEach((el) => {
+        el.hidden = el !== preferred;
+      });
+    }
+
+    // Rewrite to native app schemes on mobile so installed apps capture the tap.
+    if (isMobile(platform)) {
+      bar.querySelectorAll<HTMLAnchorElement>('a[data-dsp]').forEach((a) => {
+        const key = a.dataset.dsp as DspKey | undefined;
+        if (!key) return;
+        const deepLink = getNativeDeepLink(key, a.href);
+        if (deepLink !== a.href) a.href = deepLink;
+      });
+    }
+
     const setVisible = (visible: boolean) => {
       bar.classList.toggle('is-visible', visible);
       bar.setAttribute('aria-hidden', visible ? 'false' : 'true');
     };
 
+    // Observe the inline primary CTA so the sticky bar only appears once the
+    // user has scrolled past it. After iOS reorder, the primary may have
+    // changed; re-query at this point.
+    const inline = document.querySelector<HTMLElement>('.dsp-btn--primary');
     if (inline && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver(
         (entries) => {
@@ -68,7 +103,7 @@ const ctaLabel = primary
             setVisible(!entry.isIntersecting);
           }
         },
-        { rootMargin: '0px 0px -10% 0px', threshold: 0 }
+        { rootMargin: '0px 0px -10% 0px', threshold: 0 },
       );
       io.observe(inline);
     } else {

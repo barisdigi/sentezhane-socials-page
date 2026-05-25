@@ -50,5 +50,9 @@ const { title, description, lang = 'tr' } = Astro.props;
       <slot />
     </main>
     <SiteFooter lang={lang} />
+    <script>
+      import { initEngagementTimer } from '../lib/tracking';
+      initEngagementTimer(15000);
+    </script>
   </body>
 </html>

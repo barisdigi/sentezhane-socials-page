@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "sentezhane-socials-page",
+  "name": "sentezhane-site",
   "compatibility_date": "2026-05-24",
   "observability": {
     "enabled": true

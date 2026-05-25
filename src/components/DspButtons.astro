@@ -54,10 +54,43 @@ const iconMap: Record<string, typeof IconSpotify> = {
 
 <script>
   import { track } from '../lib/tracking';
+  import { detectPlatform, isMobile } from '../lib/platform';
+  import { getNativeDeepLink } from '../lib/dsp';
+
+  type DspKey = 'spotify' | 'appleMusic';
+
+  const platform = detectPlatform();
+
+  // iOS users see Apple Music as the primary CTA; reorder the inline buttons
+  // and swap the visual "primary" treatment accordingly.
+  if (platform === 'ios') {
+    document.querySelectorAll<HTMLElement>('.dsp-buttons').forEach((container) => {
+      const apple = container.querySelector<HTMLElement>('a[data-dsp="appleMusic"]');
+      const spotify = container.querySelector<HTMLElement>('a[data-dsp="spotify"]');
+      if (!apple || !spotify) return;
+      container.insertBefore(apple, spotify);
+      apple.classList.add('dsp-btn--primary');
+      spotify.classList.remove('dsp-btn--primary');
+      const sparkle = spotify.querySelector('.dsp-btn__sparkle');
+      if (sparkle) apple.appendChild(sparkle);
+    });
+  }
+
+  // On mobile, rewrite https DSP URLs to their native app schemes so the
+  // installed app handles the link instead of the in-app webview / browser.
+  if (isMobile(platform)) {
+    document.querySelectorAll<HTMLAnchorElement>('a[data-dsp]').forEach((a) => {
+      const key = a.dataset.dsp as DspKey | undefined;
+      if (!key) return;
+      const deepLink = getNativeDeepLink(key, a.href);
+      if (deepLink !== a.href) a.href = deepLink;
+    });
+  }
 
   document.addEventListener('click', (e) => {
     const anchor = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[data-dsp]');
     if (!anchor) return;
+    if (anchor.dataset.sticky === '1') return; // sticky bar emits its own event
     const dsp = anchor.dataset.dsp;
     const releaseSlug = anchor.dataset.releaseSlug;
     const trackSlug = anchor.dataset.trackSlug;

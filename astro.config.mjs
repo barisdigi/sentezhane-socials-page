@@ -30,11 +30,12 @@ export default defineConfig({
     },
   },
 
+
   integrations: [
     sitemap({
       i18n: { defaultLocale: 'tr', locales: { tr: 'tr-TR', en: 'en-US' } },
     }),
   ],
 
-  adapter: cloudflare()
+  adapter: cloudflare({ imageService: 'compile' })
 });
