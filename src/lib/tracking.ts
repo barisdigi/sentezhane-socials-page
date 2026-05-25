@@ -45,6 +45,8 @@ export function track(event: TrackEvent): void {
         content_category: p.dsp,
         content_type: 'music',
         content_ids: [contentId],
+        value: 1,
+        currency: 'TRY',
       },
       { eventID: eventId },
     );
