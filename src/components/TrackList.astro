@@ -1,6 +1,7 @@
 ---
 import type { getTracksForAlbum } from '../lib/releases';
 import { displayTitle } from '../lib/format';
+import Cover from './Cover.astro';
 import type { Locale } from '../i18n/strings';
 import { localizedPath } from '../i18n/strings';
 
@@ -18,8 +19,12 @@ const { albumSlug, tracks, lang = 'tr' } = Astro.props;
     <li>
       <a href={localizedPath(lang, `/${albumSlug}/${track.data.slug}/`)}>
         <span class="track-number">{i + 1}</span>
+        {track.resolvedCover && (
+          <span class="track-cover">
+            <Cover src={track.resolvedCover} alt={displayTitle(track.data)} width={64} sizes="48px" />
+          </span>
+        )}
         <span class="track-title">{displayTitle(track.data)}</span>
-        {track.data.youtubeVideoId && <span class="track-video-hint">▶</span>}
       </a>
     </li>
   ))}

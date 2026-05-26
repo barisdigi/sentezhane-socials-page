@@ -1,7 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
 import type { Locale } from '../i18n/strings';
-import { t, localizedPath, stripLocalePrefix } from '../i18n/strings';
+import { localizedPath } from '../i18n/strings';
 
 interface Props {
   lang?: Locale;
@@ -11,18 +11,11 @@ const { lang = 'tr' } = Astro.props;
 const artist = await getEntry('artist', 'artist');
 const name = artist?.data.name ?? 'Sentezhane';
 
-const basePath = stripLocalePrefix(Astro.url.pathname);
-const trHref = localizedPath('tr', basePath);
-const enHref = localizedPath('en', basePath);
 const homeHref = localizedPath(lang, '/');
 ---
 
 <header class="site-header">
   <a href={homeHref} class="site-header__logo">{name}</a>
-  <nav class="lang-switch" aria-label="Language">
-    <a href={trHref} aria-current={lang === 'tr' ? 'true' : undefined}>{t(lang, 'lang.tr')}</a>
-    <a href={enHref} aria-current={lang === 'en' ? 'true' : undefined}>{t(lang, 'lang.en')}</a>
-  </nav>
 </header>
 
 <style>

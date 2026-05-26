@@ -5,7 +5,6 @@ import { getAllReleases, getTracksForAlbum, getTrack } from '../../../lib/releas
 import { displayTitle } from '../../../lib/format';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Cover from '../../../components/Cover.astro';
-import Breadcrumb from '../../../components/Breadcrumb.astro';
 import DspButtons from '../../../components/DspButtons.astro';
 import StickyMobileCta from '../../../components/StickyMobileCta.astro';
 // import YouTubeEmbed from '../../../components/YouTubeEmbed.astro'; // disabled: re-enable to restore YouTube embed
@@ -67,12 +66,6 @@ const jsonLdData = buildMusicRecordingJsonLd({
   <SeoMeta slot="head" title={`${trackTitle} — ${albumTitle}`} canonical={canonical} image={resolvedCover} ogType="music.song" lang={lang} alternates={alternates} />
   <JsonLd slot="head" data={jsonLdData} />
   <article class="release">
-    <Breadcrumb items={[
-      { label: artistName, href: '/en/' },
-      { label: albumTitle, href: `/en/${album.data.slug}/` },
-      { label: trackTitle },
-    ]} />
-
     <div class="release__grid">
       <div class="release__cover">
         {resolvedCover && (
@@ -83,7 +76,10 @@ const jsonLdData = buildMusicRecordingJsonLd({
       <div class="release__content">
         <header>
           <h1>{trackTitle}</h1>
-          <p class="release-meta">{t(lang, 'release.album.label')}: <a href={`/en/${album.data.slug}/`}>{albumTitle}</a></p>
+          <p class="track-album-ref">
+            <span class="track-album-ref__label">{t(lang, 'release.album.label')}</span>
+            <a class="track-album-ref__link" href={`/en/${album.data.slug}/`}>{albumTitle}</a>
+          </p>
         </header>
 
         <DspButtons links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} lang={lang} />
