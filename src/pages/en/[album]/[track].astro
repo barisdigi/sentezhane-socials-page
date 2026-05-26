@@ -8,7 +8,7 @@ import Cover from '../../../components/Cover.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import DspButtons from '../../../components/DspButtons.astro';
 import StickyMobileCta from '../../../components/StickyMobileCta.astro';
-import YouTubeEmbed from '../../../components/YouTubeEmbed.astro';
+// import YouTubeEmbed from '../../../components/YouTubeEmbed.astro'; // disabled: re-enable to restore YouTube embed
 import SeoMeta from '../../../components/SeoMeta.astro';
 import JsonLd from '../../../components/JsonLd.astro';
 import { buildMusicRecordingJsonLd, abs } from '../../../lib/seo';
@@ -88,9 +88,11 @@ const jsonLdData = buildMusicRecordingJsonLd({
 
         <DspButtons links={track.data.links} releaseSlug={album.data.slug} trackSlug={track.data.slug} lang={lang} />
 
+        {/* YouTube embed disabled — re-enable to restore
         {track.data.youtubeVideoId && (
           <YouTubeEmbed videoId={track.data.youtubeVideoId} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} lang="en" />
         )}
+        */}
 
         <ShareButtons url={abs('/en/' + album.data.slug + '/' + track.data.slug + '/')} title={trackTitle} releaseSlug={album.data.slug} trackSlug={track.data.slug} lang={lang} />
       </div>
