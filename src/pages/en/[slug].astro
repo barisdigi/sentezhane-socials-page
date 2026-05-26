@@ -7,7 +7,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Cover from '../../components/Cover.astro';
 import DspButtons from '../../components/DspButtons.astro';
 import StickyMobileCta from '../../components/StickyMobileCta.astro';
-// import YouTubeEmbed from '../../components/YouTubeEmbed.astro'; // disabled: re-enable to restore YouTube embed
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
 import TrackList from '../../components/TrackList.astro';
 import SeoMeta from '../../components/SeoMeta.astro';
 import JsonLd from '../../components/JsonLd.astro';
@@ -78,11 +78,9 @@ const jsonLdData = release.data.type === 'album'
 
       <DspButtons links={release.data.links} releaseSlug={release.data.slug} lang={lang} />
 
-      {/* YouTube embed disabled — re-enable to restore
       {release.data.youtubeVideoId && (
         <YouTubeEmbed videoId={release.data.youtubeVideoId} title={title} releaseSlug={release.data.slug} lang="en" />
       )}
-      */}
 
       {release.data.type === 'album' && tracks.length > 0 && (
         <>
