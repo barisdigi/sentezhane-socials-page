@@ -51,7 +51,22 @@ export function getNativeDeepLink(
       if (!path) return url;
       const [type, id] = path.split('/');
       if (!type || !id) return url;
-      return `spotify:${type}:${id}`;
+      // Preserve the `context` query param (e.g. ?context=spotify:playlist:<id>)
+      // so the Spotify app starts playback inside the given playlist/album
+      // instead of as a one-off track. The native URI scheme accepts the same
+      // query string the web player uses. `si` is the share identifier used
+      // for attribution — keep it so analytics line up with the shared link.
+      const params = new URLSearchParams();
+      const context = u.searchParams.get('context');
+      if (context && /^spotify:(playlist|album|artist|show|episode):[A-Za-z0-9]+$/.test(context)) {
+        params.set('context', context);
+      }
+      const si = u.searchParams.get('si');
+      if (si && /^[A-Za-z0-9_-]+$/.test(si)) {
+        params.set('si', si);
+      }
+      const query = params.toString();
+      return query ? `spotify:${type}:${id}?${query}` : `spotify:${type}:${id}`;
     }
     if (key === 'appleMusic' && u.hostname === 'music.apple.com') {
       // Only iOS reliably handles the music:// scheme. Android has no

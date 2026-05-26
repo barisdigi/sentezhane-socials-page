@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run optimize:covers && astro dev",
+    "astro": "astro dev",
     "build": "astro check && astro build",
     "prebuild": "node scripts/optimize-covers.mjs",
     "optimize:covers": "node scripts/optimize-covers.mjs",
