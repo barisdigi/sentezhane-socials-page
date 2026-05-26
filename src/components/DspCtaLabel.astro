@@ -1,0 +1,25 @@
+---
+import type { Locale } from '../i18n/strings';
+import { t } from '../i18n/strings';
+
+interface Props {
+  lang?: Locale;
+  dsp: 'spotify' | 'appleMusic';
+}
+
+const { lang = 'tr', dsp } = Astro.props;
+const prefix = t(lang, `dsp.${dsp}.prefix`);
+const suffix = t(lang, `dsp.${dsp}.suffix`);
+const verbListen = t(lang, `dsp.${dsp}.verb.listen`);
+const verbSave = t(lang, `dsp.${dsp}.verb.save`);
+const fullLabel = t(lang, `dsp.listenOn.${dsp}`);
+---
+
+<span class="spotify-cta-label" aria-label={fullLabel}>
+  {prefix && <span class="spotify-cta-label__static" aria-hidden="true">{prefix}</span>}
+  <span class="spotify-cta-label__rotator" aria-hidden="true">
+    <span class="spotify-cta-label__word spotify-cta-label__word--a">{verbListen}</span>
+    <span class="spotify-cta-label__word spotify-cta-label__word--b">{verbSave}</span>
+  </span>
+  {suffix && <span class="spotify-cta-label__static" aria-hidden="true">{suffix}</span>}
+</span>

@@ -3,6 +3,7 @@ import type { Release, Track } from '../lib/types';
 import { getDspLinks } from '../lib/dsp';
 import IconSpotify from './icons/IconSpotify.astro';
 import IconAppleMusic from './icons/IconAppleMusic.astro';
+import DspCtaLabel from './DspCtaLabel.astro';
 import type { Locale } from '../i18n/strings';
 import { t } from '../i18n/strings';
 
@@ -46,7 +47,9 @@ const labelFor = (key: string) =>
           hidden={i !== 0}
         >
           {Icon && <Icon size={22} />}
-          <span>{labelFor(dsp.key)}</span>
+          {(dsp.key === 'spotify' || dsp.key === 'appleMusic')
+            ? <DspCtaLabel lang={lang} dsp={dsp.key} />
+            : <span>{labelFor(dsp.key)}</span>}
           <span class="sticky-cta__sparkle" aria-hidden="true"></span>
         </a>
       );

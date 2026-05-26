@@ -426,6 +426,22 @@ a:hover {
   transform: scale(0.98);
 }
 
+/* Brand color override when Apple Music is the primary CTA (iOS swap) */
+.dsp-btn--primary[data-dsp="appleMusic"] {
+  background: linear-gradient(180deg, #fa57c1 0%, #fc3c44 100%);
+  color: #fff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+    0 10px 24px -8px rgba(252, 60, 68, 0.55),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+.dsp-btn--primary[data-dsp="appleMusic"]:hover {
+  background: linear-gradient(180deg, #ff66cc 0%, #ff4a52 100%);
+  color: #fff;
+}
+
 /* Twinkle / shimmer sweep across the button */
 .dsp-btn__sparkle {
   position: absolute;
@@ -473,8 +489,99 @@ a:hover {
   .dsp-btn--primary,
   .dsp-btn__sparkle,
   .sticky-cta__btn,
-  .sticky-cta__sparkle {
+  .sticky-cta__sparkle,
+  .spotify-cta-label__word {
     animation: none;
+  }
+  .spotify-cta-label__word--a {
+    opacity: 1;
+  }
+}
+
+/* Spotify CTA label with cross-fade between verbs */
+.spotify-cta-label {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: pre;
+}
+
+.spotify-cta-label__static {
+  display: inline-block;
+}
+
+.spotify-cta-label__rotator {
+  display: inline-grid;
+  vertical-align: baseline;
+}
+
+.spotify-cta-label__word {
+  grid-area: 1 / 1;
+  opacity: 0;
+  will-change: opacity, transform;
+  animation: spotify-cta-word 6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.spotify-cta-label__word--b {
+  animation-delay: -3s;
+}
+
+/* Only the primary inline DSP button shows the rotating CTA label;
+   secondary buttons show the short platform name and skip the animation. */
+.dsp-btn__label--cta { display: none; }
+.dsp-btn__label--short { display: inline; }
+.dsp-btn--primary .dsp-btn__label--cta { display: inline; }
+.dsp-btn--primary .dsp-btn__label--short { display: none; }
+.dsp-btn:not(.dsp-btn--primary) .spotify-cta-label__word {
+  animation: none;
+}
+
+/* Tiny, faded one-liner sandwiched between the primary and secondary CTA. */
+.dsp-support-hint {
+  display: none;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--muted, #b6c1ba);
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* Default visual order: primary (spotify), hint, secondary (apple). */
+.dsp-buttons .dsp-btn[data-dsp="spotify"] { order: 1; }
+.dsp-buttons .dsp-support-hint--spotify { order: 2; }
+.dsp-buttons .dsp-btn[data-dsp="appleMusic"] { order: 3; }
+.dsp-buttons .dsp-support-hint--appleMusic { order: 4; }
+
+/* iOS swap: Apple Music becomes primary, so reorder accordingly. */
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="appleMusic"]) .dsp-btn[data-dsp="appleMusic"] { order: 1; }
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="appleMusic"]) .dsp-support-hint--appleMusic { order: 2; }
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="appleMusic"]) .dsp-btn[data-dsp="spotify"] { order: 3; }
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="appleMusic"]) .dsp-support-hint--spotify { order: 4; }
+
+/* Show only the hint matching the current primary DSP. */
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="spotify"]) .dsp-support-hint--spotify {
+  display: block;
+}
+.dsp-buttons:has(.dsp-btn--primary[data-dsp="appleMusic"]) .dsp-support-hint--appleMusic {
+  display: block;
+}
+
+@keyframes spotify-cta-word {
+  0%, 40% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0;
+    transform: translateY(-60%);
+  }
+  50.01%, 90% {
+    opacity: 0;
+    transform: translateY(60%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -532,6 +639,17 @@ a:hover {
 
 .sticky-cta__btn:active {
   transform: scale(0.98);
+}
+
+/* Brand color override for the Apple Music sticky CTA */
+.sticky-cta__btn[data-dsp="appleMusic"] {
+  color: #fff;
+  background: linear-gradient(180deg, #fa57c1 0%, #fc3c44 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+    0 10px 24px -8px rgba(252, 60, 68, 0.55),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
 }
 
 /* The `hidden` attribute must beat `display: flex` so only the
