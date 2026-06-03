@@ -7,6 +7,10 @@ const optionalStr = z.string().min(1).optional();
 const linksSchema = z.object({
   spotify: optionalUrl,
   appleMusic: optionalUrl,
+  youtubeMusic: optionalUrl,
+  deezer: optionalUrl,
+  amazonMusic: optionalUrl,
+  tidal: optionalUrl,
 });
 
 const artist = defineCollection({
@@ -54,6 +58,10 @@ const releases = defineCollection({
       links: {
         spotify: row.spotify,
         appleMusic: row.appleMusic,
+        youtubeMusic: row.youtubeMusic,
+        deezer: row.deezer,
+        amazonMusic: row.amazonMusic,
+        tidal: row.tidal,
       },
     }),
   }),
@@ -83,6 +91,10 @@ const tracks = defineCollection({
       links: {
         spotify: row.spotify,
         appleMusic: row.appleMusic,
+        youtubeMusic: row.youtubeMusic,
+        deezer: row.deezer,
+        amazonMusic: row.amazonMusic,
+        tidal: row.tidal,
       },
     }),
   }),

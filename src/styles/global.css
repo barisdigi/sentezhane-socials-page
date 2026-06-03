@@ -597,6 +597,60 @@ a:hover {
   display: block;
 }
 
+/* Secondary DSP row — small, low-key chips so the page stays focused on the
+   two primary CTAs while still offering Deezer / YouTube Music / etc. */
+.dsp-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  max-width: 28rem;
+}
+
+.dsp-more__label {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  opacity: 0.75;
+  letter-spacing: 0.02em;
+}
+
+.dsp-more__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dsp-more__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.dsp-more__btn:hover,
+.dsp-more__btn:focus-visible {
+  color: var(--fg);
+  background: var(--bg-elev);
+  border-color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.dsp-more__btn .icon {
+  flex-shrink: 0;
+}
+
 @keyframes spotify-cta-word {
   0%, 40% {
     opacity: 1;

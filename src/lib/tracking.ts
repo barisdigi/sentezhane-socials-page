@@ -47,6 +47,10 @@ export function track(event: TrackEvent): void {
         content_ids: [contentId],
         value: 1,
         currency: 'TRY',
+        // Custom fields below are non-standard but pass through to Events
+        // Manager / CAPI so we can break down by which button was tapped.
+        dsp: p.dsp,
+        placement: p.placement || 'inline',
       },
       { eventID: eventId },
     );

@@ -1,6 +1,11 @@
 import type { Release, Track } from './types';
 
-export type DspKey = 'spotify' | 'appleMusic';
+// Primary DSPs get full-size CTA buttons and the sticky mobile bar treatment.
+// Secondary DSPs render as compact icon-only chips below the primaries so the
+// main page stays focused on the platforms most users will use.
+export type PrimaryDspKey = 'spotify' | 'appleMusic';
+export type SecondaryDspKey = 'youtubeMusic' | 'deezer' | 'amazonMusic' | 'tidal';
+export type DspKey = PrimaryDspKey | SecondaryDspKey;
 
 export interface DspEntry {
   key: DspKey;
@@ -8,16 +13,36 @@ export interface DspEntry {
   url: string;
 }
 
-const DSP_ORDER: { key: DspKey; label: string }[] = [
+const PRIMARY_ORDER: { key: PrimaryDspKey; label: string }[] = [
   { key: 'spotify', label: 'Spotify' },
   { key: 'appleMusic', label: 'Apple Music' },
 ];
 
-export function getDspLinks(links: Release['data']['links'] | Track['data']['links']): DspEntry[] {
-  return DSP_ORDER.flatMap((d) => {
+const SECONDARY_ORDER: { key: SecondaryDspKey; label: string }[] = [
+  { key: 'youtubeMusic', label: 'YouTube Music' },
+  { key: 'deezer', label: 'Deezer' },
+  { key: 'amazonMusic', label: 'Amazon Music' },
+  { key: 'tidal', label: 'Tidal' },
+];
+
+type LinkMap = Release['data']['links'] | Track['data']['links'];
+
+export function getDspLinks(links: LinkMap): DspEntry[] {
+  return PRIMARY_ORDER.flatMap((d) => {
     const url = links[d.key];
     return url ? [{ ...d, url }] : [];
   });
+}
+
+export function getSecondaryDspLinks(links: LinkMap): DspEntry[] {
+  return SECONDARY_ORDER.flatMap((d) => {
+    const url = links[d.key];
+    return url ? [{ ...d, url }] : [];
+  });
+}
+
+export function isPrimaryDsp(key: string): key is PrimaryDspKey {
+  return key === 'spotify' || key === 'appleMusic';
 }
 
 /**

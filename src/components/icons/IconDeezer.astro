@@ -1,0 +1,10 @@
+---
+interface Props {
+  size?: number;
+}
+const { size = 18 } = Astro.props;
+---
+
+<svg width={size} height={size} aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" class="icon">
+  <path d="M18.81 4.16h5.16v2.36h-5.16V4.16zm0 3.3h5.16v2.36h-5.16V7.46zm-6.27 0h5.16v2.36h-5.16V7.46zm0 3.3h5.16v2.36h-5.16v-2.36zm6.27 0h5.16v2.36h-5.16v-2.36zm-12.55 0h5.16v2.36H6.26v-2.36zm12.55 3.31h5.16v2.36h-5.16v-2.36zm-6.27 0h5.16v2.36h-5.16v-2.36zm-6.28 0h5.16v2.36H6.26v-2.36zM0 14.07h5.16v2.36H0v-2.36zm18.81 3.3h5.16v2.36h-5.16v-2.36zm-6.27 0h5.16v2.36h-5.16v-2.36zm-6.28 0h5.16v2.36H6.26v-2.36zM0 17.37h5.16v2.36H0v-2.36z"/>
+</svg>

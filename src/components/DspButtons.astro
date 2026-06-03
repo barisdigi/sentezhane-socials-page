@@ -1,8 +1,12 @@
 ---
 import type { Release, Track } from '../lib/types';
-import { getDspLinks } from '../lib/dsp';
+import { getDspLinks, getSecondaryDspLinks } from '../lib/dsp';
 import IconSpotify from './icons/IconSpotify.astro';
 import IconAppleMusic from './icons/IconAppleMusic.astro';
+import IconYouTubeMusic from './icons/IconYouTubeMusic.astro';
+import IconDeezer from './icons/IconDeezer.astro';
+import IconAmazonMusic from './icons/IconAmazonMusic.astro';
+import IconTidal from './icons/IconTidal.astro';
 import DspCtaLabel from './DspCtaLabel.astro';
 import type { Locale } from '../i18n/strings';
 import { t } from '../i18n/strings';
@@ -16,14 +20,19 @@ interface Props {
 
 const { links, releaseSlug, trackSlug, lang = 'tr' } = Astro.props;
 const dspLinks = getDspLinks(links);
+const secondaryLinks = getSecondaryDspLinks(links);
 
 const iconMap: Record<string, typeof IconSpotify> = {
   spotify: IconSpotify,
   appleMusic: IconAppleMusic,
+  youtubeMusic: IconYouTubeMusic,
+  deezer: IconDeezer,
+  amazonMusic: IconAmazonMusic,
+  tidal: IconTidal,
 };
 ---
 
-{dspLinks.length > 0 && (
+{(dspLinks.length > 0 || secondaryLinks.length > 0) && (
   <section class="dsp-section">
     <div class="dsp-buttons">
       {dspLinks.map((dsp) => {
@@ -63,7 +72,38 @@ const iconMap: Record<string, typeof IconSpotify> = {
         {t(lang, 'dsp.supportHint.appleMusic')}
       </p>
     </div>
-    </section>
+
+    {secondaryLinks.length > 0 && (
+      <div class="dsp-more">
+        <span class="dsp-more__label">{t(lang, 'dsp.more')}</span>
+        <ul class="dsp-more__list" role="list">
+          {secondaryLinks.map((dsp) => {
+            const Icon = iconMap[dsp.key];
+            const label = t(lang, `dsp.short.${dsp.key}`);
+            return (
+              <li>
+                <a
+                  href={dsp.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="dsp-more__btn"
+                  data-dsp={dsp.key}
+                  data-release-slug={releaseSlug}
+                  data-track-slug={trackSlug}
+                  data-lang={lang}
+                  aria-label={label}
+                  title={label}
+                >
+                  {Icon && <Icon size={18} />}
+                  <span class="dsp-more__name">{label}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+  </section>
 )}
 
 <script>
@@ -111,7 +151,7 @@ const iconMap: Record<string, typeof IconSpotify> = {
     const trackSlug = anchor.dataset.trackSlug;
     const lang = anchor.dataset.lang;
     if (dsp && releaseSlug) {
-      track({ name: 'ClickDsp', params: { dsp, releaseSlug, trackSlug: trackSlug || undefined, lang: lang || undefined } });
+      track({ name: 'ClickDsp', params: { dsp, releaseSlug, trackSlug: trackSlug || undefined, lang: lang || undefined, placement: 'inline' } });
     }
   });
 </script>

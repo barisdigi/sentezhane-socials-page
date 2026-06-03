@@ -50,6 +50,10 @@ One row per album or single. Each release gets a page at `/<slug>/`.
 | `youtubeVideoId` | no | YouTube video ID for embed |
 | `spotify` | no | Spotify URL |
 | `appleMusic` | no | Apple Music URL |
+| `youtubeMusic` | no | YouTube Music URL (shown as a small chip) |
+| `deezer` | no | Deezer URL (shown as a small chip) |
+| `amazonMusic` | no | Amazon Music URL (shown as a small chip) |
+| `tidal` | no | Tidal URL (shown as a small chip) |
 
 ### `content/tracks.csv`
 
@@ -64,6 +68,10 @@ One row per song belonging to an album. Singles do **not** need track rows.
 | `youtubeVideoId` | no | YouTube video ID |
 | `spotify` | no | Spotify URL |
 | `appleMusic` | no | Apple Music URL |
+| `youtubeMusic` | no | YouTube Music URL (shown as a small chip) |
+| `deezer` | no | Deezer URL (shown as a small chip) |
+| `amazonMusic` | no | Amazon Music URL (shown as a small chip) |
+| `tidal` | no | Tidal URL (shown as a small chip) |
 
 ## Adding a New Release
 
