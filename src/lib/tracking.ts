@@ -77,9 +77,9 @@ function sendToCapi(event: TrackEvent, eventId: string): void {
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
       const blob = new Blob([payload], { type: 'application/json' });
-      if (navigator.sendBeacon('/api/track', blob)) return;
+      if (navigator.sendBeacon('/api/track/', blob)) return;
     }
-    fetch('/api/track', {
+    fetch('/api/track/', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: payload,
