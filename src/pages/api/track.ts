@@ -32,6 +32,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     return new Response(null, { status: 204 });
   }
 
+  
   if (!body || body.name !== 'ClickDsp' || !body.eventId || !body.params) {
     console.warn('[capi] payload shape rejected', body);
     return new Response(null, { status: 204 });
