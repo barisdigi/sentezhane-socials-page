@@ -13,6 +13,7 @@ export interface IdStrategyColumn {
   column: string;
 }
 
+
 export interface IdStrategyComposite {
   kind: 'composite';
   columns: string[];
