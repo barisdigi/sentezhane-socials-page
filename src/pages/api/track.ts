@@ -27,21 +27,31 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   let body: ClickDspPayload;
   try {
     body = (await request.json()) as ClickDspPayload;
-  } catch {
+  } catch (err) {
+    console.error('[capi] body json parse failed', err);
     return new Response(null, { status: 204 });
   }
 
   if (!body || body.name !== 'ClickDsp' || !body.eventId || !body.params) {
+    console.warn('[capi] payload shape rejected', body);
     return new Response(null, { status: 204 });
   }
 
   const env = ((locals as { runtime?: { env?: RuntimeEnv } }).runtime?.env ?? {}) as RuntimeEnv;
   const token = env.META_CAPI_TOKEN;
-  if (!token) return new Response(null, { status: 204 });
+  if (!token) {
+    console.error('[capi] META_CAPI_TOKEN missing from env');
+    return new Response(null, { status: 204 });
+  }
 
   const artist = await getEntry('artist', 'artist');
   const pixelId = artist?.data.metaPixelId;
-  if (!pixelId) return new Response(null, { status: 204 });
+  if (!pixelId) {
+    console.error('[capi] metaPixelId missing from artist entry');
+    return new Response(null, { status: 204 });
+  }
+
+  console.log('[capi] forwarding event', body.eventId, 'test_code=', env.META_TEST_EVENT_CODE || '(none)');
 
   const p = body.params;
   const contentId = p.trackSlug || p.releaseSlug;
