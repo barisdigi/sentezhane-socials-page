@@ -3,7 +3,13 @@
   "name": "sentezhane-socials-page",
   "compatibility_date": "2026-05-24",
   "observability": {
-    "enabled": true
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false
+    }
   },
   "main": "dist/_worker.js/index.js",
   "compatibility_flags": [
