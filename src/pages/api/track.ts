@@ -80,13 +80,17 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
 
   const url = `https://graph.facebook.com/v21.0/${encodeURIComponent(pixelId)}/events?access_token=${encodeURIComponent(token)}`;
   try {
-    await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     });
-  } catch {
-    /* swallow — pixel still fires client-side */
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      console.error('[capi] Meta responded', res.status, res.statusText, text);
+    }
+  } catch (err) {
+    console.error('[capi] Meta fetch threw', err);
   }
 
   return new Response(null, { status: 204 });

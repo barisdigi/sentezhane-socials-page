@@ -78,15 +78,23 @@ function sendToCapi(event: TrackEvent, eventId: string): void {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
       const blob = new Blob([payload], { type: 'application/json' });
       if (navigator.sendBeacon('/api/track/', blob)) return;
+      console.warn('[capi] sendBeacon returned false, falling back to fetch');
     }
     fetch('/api/track/', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: payload,
       keepalive: true,
-    }).catch(() => {});
-  } catch {
-    /* noop */
+    })
+      .then((res) => {
+        console.debug('[capi] /api/track/ responded', res.status, res.statusText);
+        if (!res.ok) console.error('[capi] /api/track/ responded', res.status, res.statusText);
+      })
+      .catch((err) => {
+        console.error('[capi] /api/track/ fetch failed', err);
+      });
+  } catch (err) {
+    console.error('[capi] sendToCapi threw', err);
   }
 }
 
