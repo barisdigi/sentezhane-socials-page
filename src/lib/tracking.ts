@@ -54,6 +54,39 @@ export function track(event: TrackEvent): void {
       },
       { eventID: eventId },
     );
+    sendToCapi(event, eventId);
+  }
+}
+
+function readCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+function sendToCapi(event: TrackEvent, eventId: string): void {
+  if (typeof window === 'undefined') return;
+  const payload = JSON.stringify({
+    name: event.name,
+    eventId,
+    params: event.params,
+    url: window.location.href,
+    fbp: readCookie('_fbp'),
+    fbc: readCookie('_fbc'),
+  });
+  try {
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([payload], { type: 'application/json' });
+      if (navigator.sendBeacon('/api/track', blob)) return;
+    }
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: payload,
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    /* noop */
   }
 }
 
