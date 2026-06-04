@@ -68,6 +68,11 @@ function readCookie(name: string): string | undefined {
 
 function sendToCapi(event: TrackEvent, eventId: string): void {
   if (typeof window === 'undefined') return;
+  const CAPI_SENT_KEY = 'capi_sent';
+  try {
+    if (sessionStorage.getItem(CAPI_SENT_KEY)) return;
+    sessionStorage.setItem(CAPI_SENT_KEY, '1');
+  } catch { /* private browsing or storage full – proceed anyway */ }
   const payload = JSON.stringify({
     name: event.name,
     eventId,
