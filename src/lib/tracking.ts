@@ -34,8 +34,15 @@ export function track(event: TrackEvent): void {
     const p = event.params;
     const contentId = p.trackSlug || p.releaseSlug;
 
-    // Mirror as Meta standard event for ad optimization (browser-side)
-    if (fbq) {
+    let browserSent = false;
+    let serverSent = false;
+    try {
+      browserSent = !!sessionStorage.getItem('vc_browser_sent');
+      serverSent = !!sessionStorage.getItem('vc_server_sent');
+    } catch { /* private browsing or storage full */ }
+
+    // Fire browser ViewContent once per session
+    if (!browserSent && fbq) {
       fbq(
         'track',
         'ViewContent',
@@ -51,12 +58,15 @@ export function track(event: TrackEvent): void {
         },
         { eventID: eventId },
       );
+      try { sessionStorage.setItem('vc_browser_sent', '1'); } catch { /* noop */ }
     }
 
-    // CAPI fires independently of the browser pixel — captures events even
-    // when ad blockers prevent fbevents.js from loading. Deduplication via
-    // eventID prevents double-counting for users without blockers.
-    sendToCapi(event, eventId);
+    // CAPI fires independently — once per session, even if ad blocker kills fbq.
+    // Shares the same eventID so Meta deduplicates when both fire.
+    if (!serverSent) {
+      sendToCapi(event, eventId);
+      try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
+    }
   }
 }
 
@@ -68,11 +78,6 @@ function readCookie(name: string): string | undefined {
 
 function sendToCapi(event: TrackEvent, eventId: string): void {
   if (typeof window === 'undefined') return;
-  const CAPI_SENT_KEY = 'capi_sent';
-  try {
-    if (sessionStorage.getItem(CAPI_SENT_KEY)) return;
-    sessionStorage.setItem(CAPI_SENT_KEY, '1');
-  } catch { /* private browsing or storage full – proceed anyway */ }
   const payload = JSON.stringify({
     name: event.name,
     eventId,
