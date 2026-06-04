@@ -22,38 +22,40 @@ function genEventId(): string {
 
 export function track(event: TrackEvent): void {
   if (typeof window === 'undefined') return;
-  if (typeof window.fbq !== 'function') return;
   const eventId = genEventId();
-  const fbq = window.fbq;
+  const fbq = typeof window.fbq === 'function' ? window.fbq : null;
 
-  // Custom event preserves the detailed parameters we already use in reporting.
-  fbq('trackCustom', event.name, event.params, { eventID: eventId });
+  // Browser pixel events — skipped when ad blocker kills fbevents.js
+  if (fbq) {
+    fbq('trackCustom', event.name, event.params, { eventID: eventId });
+  }
 
-  // Mirror ClickDsp as a Meta standard event so the ad optimizer can use it
-  // for conversion bidding / lookalike seeding. Standard events outperform
-  // custom events as optimization signals. `ViewContent` matches the
-  // semantics of "tapped to listen to this track/release" and keeps the
-  // `Lead` bucket free for future email/signup captures.
   if (event.name === 'ClickDsp') {
     const p = event.params;
     const contentId = p.trackSlug || p.releaseSlug;
-    fbq(
-      'track',
-      'ViewContent',
-      {
-        content_name: contentId,
-        content_category: p.dsp,
-        content_type: 'music',
-        content_ids: [contentId],
-        value: 1,
-        currency: 'TRY',
-        // Custom fields below are non-standard but pass through to Events
-        // Manager / CAPI so we can break down by which button was tapped.
-        dsp: p.dsp,
-        placement: p.placement || 'inline',
-      },
-      { eventID: eventId },
-    );
+
+    // Mirror as Meta standard event for ad optimization (browser-side)
+    if (fbq) {
+      fbq(
+        'track',
+        'ViewContent',
+        {
+          content_name: contentId,
+          content_category: p.dsp,
+          content_type: 'music',
+          content_ids: [contentId],
+          value: 1,
+          currency: 'TRY',
+          dsp: p.dsp,
+          placement: p.placement || 'inline',
+        },
+        { eventID: eventId },
+      );
+    }
+
+    // CAPI fires independently of the browser pixel — captures events even
+    // when ad blockers prevent fbevents.js from loading. Deduplication via
+    // eventID prevents double-counting for users without blockers.
     sendToCapi(event, eventId);
   }
 }
