@@ -4,7 +4,7 @@ import type { Release, Track } from './types';
 // Secondary DSPs render as compact icon-only chips below the primaries so the
 // main page stays focused on the platforms most users will use.
 export type PrimaryDspKey = 'spotify' | 'appleMusic';
-export type SecondaryDspKey = 'youtubeMusic' | 'deezer' | 'amazonMusic' | 'tidal';
+export type SecondaryDspKey = 'youtubeMusic';
 export type DspKey = PrimaryDspKey | SecondaryDspKey;
 
 export interface DspEntry {
@@ -20,9 +20,6 @@ const PRIMARY_ORDER: { key: PrimaryDspKey; label: string }[] = [
 
 const SECONDARY_ORDER: { key: SecondaryDspKey; label: string }[] = [
   { key: 'youtubeMusic', label: 'YouTube Music' },
-  { key: 'deezer', label: 'Deezer' },
-  { key: 'amazonMusic', label: 'Amazon Music' },
-  { key: 'tidal', label: 'Tidal' },
 ];
 
 type LinkMap = Release['data']['links'] | Track['data']['links'];

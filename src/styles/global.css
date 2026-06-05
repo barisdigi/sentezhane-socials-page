@@ -423,6 +423,35 @@ a:hover {
   text-decoration: none;
 }
 
+/* Secondary Apple Music keeps a subtle brand tint without competing with the
+   primary CTA treatment. */
+.dsp-btn[data-dsp="appleMusic"]:not(.dsp-btn--primary) {
+  color: #f8e8f0;
+  border-color: rgba(250, 87, 193, 0.45);
+  background: linear-gradient(180deg, rgba(250, 87, 193, 0.14) 0%, rgba(252, 60, 68, 0.16) 100%);
+}
+
+.dsp-btn[data-dsp="appleMusic"]:not(.dsp-btn--primary):hover,
+.dsp-btn[data-dsp="appleMusic"]:not(.dsp-btn--primary):focus-visible {
+  color: #fff;
+  border-color: rgba(255, 145, 201, 0.75);
+  background: linear-gradient(180deg, rgba(250, 87, 193, 0.24) 0%, rgba(252, 60, 68, 0.3) 100%);
+}
+
+/* Secondary Spotify (iOS swap) gets a subtle brand accent as well. */
+.dsp-btn[data-dsp="spotify"]:not(.dsp-btn--primary) {
+  color: #e7f7ed;
+  border-color: rgba(37, 227, 106, 0.42);
+  background: linear-gradient(180deg, rgba(37, 227, 106, 0.12) 0%, rgba(30, 215, 96, 0.14) 100%);
+}
+
+.dsp-btn[data-dsp="spotify"]:not(.dsp-btn--primary):hover,
+.dsp-btn[data-dsp="spotify"]:not(.dsp-btn--primary):focus-visible {
+  color: #f6fff9;
+  border-color: rgba(107, 244, 160, 0.7);
+  background: linear-gradient(180deg, rgba(37, 227, 106, 0.22) 0%, rgba(30, 215, 96, 0.26) 100%);
+}
+
 /* Primary DSP (Spotify) — visually dominant, matches the sticky CTA */
 .dsp-btn--primary {
   position: relative;
@@ -645,6 +674,20 @@ a:hover {
   background: var(--bg-elev);
   border-color: var(--fg-muted);
   text-decoration: none;
+}
+
+/* Give YouTube Music a low-key accent so it reads as available at a glance. */
+.dsp-more__btn[data-dsp="youtubeMusic"] {
+  color: #f4e3e3;
+  border-color: rgba(255, 92, 92, 0.45);
+  background: linear-gradient(180deg, rgba(255, 92, 92, 0.1) 0%, rgba(255, 0, 0, 0.12) 100%);
+}
+
+.dsp-more__btn[data-dsp="youtubeMusic"]:hover,
+.dsp-more__btn[data-dsp="youtubeMusic"]:focus-visible {
+  color: #fff;
+  border-color: rgba(255, 128, 128, 0.75);
+  background: linear-gradient(180deg, rgba(255, 92, 92, 0.2) 0%, rgba(255, 0, 0, 0.24) 100%);
 }
 
 .dsp-more__btn .icon {

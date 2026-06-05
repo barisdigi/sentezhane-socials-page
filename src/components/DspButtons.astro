@@ -4,9 +4,6 @@ import { getDspLinks, getSecondaryDspLinks } from '../lib/dsp';
 import IconSpotify from './icons/IconSpotify.astro';
 import IconAppleMusic from './icons/IconAppleMusic.astro';
 import IconYouTubeMusic from './icons/IconYouTubeMusic.astro';
-import IconDeezer from './icons/IconDeezer.astro';
-import IconAmazonMusic from './icons/IconAmazonMusic.astro';
-import IconTidal from './icons/IconTidal.astro';
 import DspCtaLabel from './DspCtaLabel.astro';
 import type { Locale } from '../i18n/strings';
 import { t } from '../i18n/strings';
@@ -26,9 +23,6 @@ const iconMap: Record<string, typeof IconSpotify> = {
   spotify: IconSpotify,
   appleMusic: IconAppleMusic,
   youtubeMusic: IconYouTubeMusic,
-  deezer: IconDeezer,
-  amazonMusic: IconAmazonMusic,
-  tidal: IconTidal,
 };
 ---
 
