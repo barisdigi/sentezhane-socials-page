@@ -64,8 +64,10 @@ export function track(event: TrackEvent): void {
     // CAPI fires independently — once per session, even if ad blocker kills fbq.
     // Shares the same eventID so Meta deduplicates when both fire.
     if (!serverSent) {
-      sendToCapi(event, eventId);
-      try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
+      void sendToCapi(event, eventId).then((sent) => {
+        if (!sent) return;
+        try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
+      });
     }
   }
 }
@@ -76,8 +78,8 @@ function readCookie(name: string): string | undefined {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
-function sendToCapi(event: TrackEvent, eventId: string): void {
-  if (typeof window === 'undefined') return;
+function sendToCapi(event: TrackEvent, eventId: string): Promise<boolean> {
+  if (typeof window === 'undefined') return Promise.resolve(false);
   const payload = JSON.stringify({
     name: event.name,
     eventId,
@@ -89,10 +91,10 @@ function sendToCapi(event: TrackEvent, eventId: string): void {
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
       const blob = new Blob([payload], { type: 'application/json' });
-      if (navigator.sendBeacon('/api/track/', blob)) return;
+      if (navigator.sendBeacon('/api/track/', blob)) return Promise.resolve(true);
       console.warn('[capi] sendBeacon returned false, falling back to fetch');
     }
-    fetch('/api/track/', {
+    return fetch('/api/track/', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: payload,
@@ -101,12 +103,15 @@ function sendToCapi(event: TrackEvent, eventId: string): void {
       .then((res) => {
         console.debug('[capi] /api/track/ responded', res.status, res.statusText);
         if (!res.ok) console.error('[capi] /api/track/ responded', res.status, res.statusText);
+        return res.ok;
       })
       .catch((err) => {
         console.error('[capi] /api/track/ fetch failed', err);
+        return false;
       });
   } catch (err) {
     console.error('[capi] sendToCapi threw', err);
+    return Promise.resolve(false);
   }
 }
 
