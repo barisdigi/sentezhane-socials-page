@@ -25,19 +25,34 @@ interface RuntimeEnv {
 }
 
 /**
+ * Returns the raw, still-encoded value of a query-string parameter. Using
+ * `URL.searchParams.get()` would URL-decode the value and mutate the `fbclid`,
+ * which Meta rejects as a "modified fbclid", so we extract the substring
+ * verbatim from the query string instead.
+ */
+function rawQueryParam(url: string, key: string): string | undefined {
+  const queryStart = url.indexOf('?');
+  if (queryStart === -1) return undefined;
+  const hashStart = url.indexOf('#', queryStart);
+  const search = url.slice(queryStart + 1, hashStart === -1 ? undefined : hashStart);
+  for (const pair of search.split('&')) {
+    if (pair.startsWith(key + '=')) return pair.slice(key.length + 1);
+  }
+  return undefined;
+}
+
+/**
  * Returns the Meta click identifier (`fbc`). Uses the value forwarded from the
  * browser when present, otherwise reconstructs it from the `fbclid` query
- * parameter on the event source URL so CAPI never sends an empty `fbc`.
+ * parameter on the event source URL so CAPI never sends an empty `fbc`. The
+ * forwarded `_fbc` cookie value and the raw `fbclid` parameter are passed
+ * through unchanged so the value Meta receives is never modified.
  */
 function deriveFbc(rawFbc: string | undefined, url: string | undefined): string | undefined {
   if (rawFbc) return rawFbc;
   if (!url) return undefined;
-  try {
-    const fbclid = new URL(url).searchParams.get('fbclid');
-    if (fbclid) return `fb.1.${Date.now()}.${fbclid}`;
-  } catch {
-    /* invalid url */
-  }
+  const fbclid = rawQueryParam(url, 'fbclid');
+  if (fbclid) return `fb.1.${Date.now()}.${fbclid}`;
   return undefined;
 }
 

@@ -124,18 +124,44 @@ function readCookie(name: string): string | undefined {
 }
 
 /**
+ * Reads a cookie value *without* URL-decoding it. Meta's `_fbc` cookie must be
+ * forwarded byte-for-byte: decoding it can alter the embedded `fbclid` (e.g.
+ * `%`, `+` or other reserved characters), which Meta rejects as a "modified
+ * fbclid".
+ */
+function readRawCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+  return match ? match[1] : undefined;
+}
+
+/**
+ * Returns the raw, still-encoded value of a query-string parameter. Using
+ * `URLSearchParams.get()` would URL-decode the value and mutate the `fbclid`,
+ * so we extract the substring verbatim instead.
+ */
+function rawQueryParam(search: string, key: string): string | undefined {
+  const pairs = search.replace(/^\?/, '').split('&');
+  for (const pair of pairs) {
+    if (pair.startsWith(key + '=')) return pair.slice(key.length + 1);
+  }
+  return undefined;
+}
+
+/**
  * Returns the Meta click identifier (`fbc`). Prefers the `_fbc` cookie set by
  * the Pixel, but falls back to constructing it from the `fbclid` URL parameter
  * when the cookie has not been written yet (or the Pixel was blocked). The
  * derived value is persisted to `_fbc` so the browser Pixel and CAPI stay
- * consistent for subsequent events.
+ * consistent for subsequent events. Both the cookie and the `fbclid` parameter
+ * are read raw so the value Meta receives is never modified.
  */
 function getFbc(): string | undefined {
-  const cookie = readCookie('_fbc');
+  const cookie = readRawCookie('_fbc');
   if (cookie) return cookie;
   if (typeof window === 'undefined') return undefined;
   try {
-    const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    const fbclid = rawQueryParam(window.location.search, 'fbclid');
     if (!fbclid) return undefined;
     const fbc = `fb.1.${Date.now()}.${fbclid}`;
     try {
