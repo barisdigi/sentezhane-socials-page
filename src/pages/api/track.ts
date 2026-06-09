@@ -23,6 +23,23 @@ interface RuntimeEnv {
   META_TEST_EVENT_CODE?: string;
 }
 
+/**
+ * Returns the Meta click identifier (`fbc`). Uses the value forwarded from the
+ * browser when present, otherwise reconstructs it from the `fbclid` query
+ * parameter on the event source URL so CAPI never sends an empty `fbc`.
+ */
+function deriveFbc(rawFbc: string | undefined, url: string | undefined): string | undefined {
+  if (rawFbc) return rawFbc;
+  if (!url) return undefined;
+  try {
+    const fbclid = new URL(url).searchParams.get('fbclid');
+    if (fbclid) return `fb.1.${Date.now()}.${fbclid}`;
+  } catch {
+    /* invalid url */
+  }
+  return undefined;
+}
+
 export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   let body: ClickDspPayload;
   try {
@@ -63,7 +80,8 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (ip) userData.client_ip_address = ip;
   if (ua) userData.client_user_agent = ua;
   if (body.fbp) userData.fbp = body.fbp;
-  if (body.fbc) userData.fbc = body.fbc;
+  const fbc = deriveFbc(body.fbc, body.url);
+  if (fbc) userData.fbc = fbc;
 
   const payload = {
     data: [

@@ -20,6 +20,23 @@ function genEventId(): string {
   return `e_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * Returns a single ViewContent event id that is shared between the browser
+ * Pixel and the server (CAPI) for the whole session. Persisting it guarantees
+ * both halves use the *same* event_id even when they fire on different clicks
+ * (e.g. the browser Pixel fires now but CAPI only succeeds on a later retry),
+ * which is what Meta needs to deduplicate the two events.
+ */
+function getViewContentEventId(): string {
+  try {
+    const existing = sessionStorage.getItem('vc_event_id');
+    if (existing) return existing;
+  } catch { /* private browsing or storage full */ }
+  const id = genEventId();
+  try { sessionStorage.setItem('vc_event_id', id); } catch { /* noop */ }
+  return id;
+}
+
 export function track(event: TrackEvent): void {
   if (typeof window === 'undefined') return;
   const eventId = genEventId();
@@ -33,6 +50,10 @@ export function track(event: TrackEvent): void {
   if (event.name === 'ClickDsp') {
     const p = event.params;
     const contentId = p.trackSlug || p.releaseSlug;
+
+    // Shared, persisted event id so browser ViewContent and server ViewContent
+    // always deduplicate, even when they fire on different clicks.
+    const vcEventId = getViewContentEventId();
 
     let browserSent = false;
     let serverSent = false;
@@ -56,7 +77,7 @@ export function track(event: TrackEvent): void {
           dsp: p.dsp,
           placement: p.placement || 'inline',
         },
-        { eventID: eventId },
+        { eventID: vcEventId },
       );
       try { sessionStorage.setItem('vc_browser_sent', '1'); } catch { /* noop */ }
     }
@@ -64,7 +85,7 @@ export function track(event: TrackEvent): void {
     // CAPI fires independently — once per session, even if ad blocker kills fbq.
     // Shares the same eventID so Meta deduplicates when both fire.
     if (!serverSent) {
-      void sendToCapi(event, eventId).then((sent) => {
+      void sendToCapi(event, vcEventId).then((sent) => {
         if (!sent) return;
         try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
       });
@@ -78,6 +99,30 @@ function readCookie(name: string): string | undefined {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
+/**
+ * Returns the Meta click identifier (`fbc`). Prefers the `_fbc` cookie set by
+ * the Pixel, but falls back to constructing it from the `fbclid` URL parameter
+ * when the cookie has not been written yet (or the Pixel was blocked). The
+ * derived value is persisted to `_fbc` so the browser Pixel and CAPI stay
+ * consistent for subsequent events.
+ */
+function getFbc(): string | undefined {
+  const cookie = readCookie('_fbc');
+  if (cookie) return cookie;
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    if (!fbclid) return undefined;
+    const fbc = `fb.1.${Date.now()}.${fbclid}`;
+    try {
+      document.cookie = `_fbc=${fbc}; max-age=7776000; path=/; samesite=lax`;
+    } catch { /* noop */ }
+    return fbc;
+  } catch {
+    return undefined;
+  }
+}
+
 function sendToCapi(event: TrackEvent, eventId: string): Promise<boolean> {
   if (typeof window === 'undefined') return Promise.resolve(false);
   const payload = JSON.stringify({
@@ -86,7 +131,7 @@ function sendToCapi(event: TrackEvent, eventId: string): Promise<boolean> {
     params: event.params,
     url: window.location.href,
     fbp: readCookie('_fbp'),
-    fbc: readCookie('_fbc'),
+    fbc: getFbc(),
   });
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
