@@ -17,7 +17,19 @@ const pixelId = artist?.data.metaPixelId;
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', pixelId);
+      var extId;
+      try {
+        extId = localStorage.getItem('ext_id');
+        if (!extId) {
+          extId = (window.crypto && typeof crypto.randomUUID === 'function')
+            ? crypto.randomUUID()
+            : ('x' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+          extId = extId.toLowerCase();
+          localStorage.setItem('ext_id', extId);
+        }
+      } catch (e) { extId = undefined; }
+      if (extId) { fbq('init', pixelId, { external_id: extId }); }
+      else { fbq('init', pixelId); }
       fbq('track', 'PageView');
     </script>
     <noscript>

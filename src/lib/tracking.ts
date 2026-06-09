@@ -37,6 +37,25 @@ function getViewContentEventId(): string {
   return id;
 }
 
+/**
+ * Returns a stable first-party identifier (`external_id`) persisted in
+ * localStorage. The same raw value is passed to the browser Pixel as advanced
+ * matching (see MetaPixel.astro) and forwarded to CAPI, giving Meta a reliable
+ * deduplication / matching key that survives ad blockers and missing cookies.
+ */
+function getExternalId(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const existing = localStorage.getItem('ext_id');
+    if (existing) return existing;
+    const id = genEventId().toLowerCase();
+    localStorage.setItem('ext_id', id);
+    return id;
+  } catch {
+    return undefined;
+  }
+}
+
 export function track(event: TrackEvent): void {
   if (typeof window === 'undefined') return;
   const eventId = genEventId();
@@ -132,6 +151,7 @@ function sendToCapi(event: TrackEvent, eventId: string): Promise<boolean> {
     url: window.location.href,
     fbp: readCookie('_fbp'),
     fbc: getFbc(),
+    externalId: getExternalId(),
   });
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {

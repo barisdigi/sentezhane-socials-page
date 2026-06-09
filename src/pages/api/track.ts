@@ -16,6 +16,7 @@ interface ClickDspPayload {
   url?: string;
   fbp?: string;
   fbc?: string;
+  externalId?: string;
 }
 
 interface RuntimeEnv {
@@ -82,6 +83,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   if (body.fbp) userData.fbp = body.fbp;
   const fbc = deriveFbc(body.fbc, body.url);
   if (fbc) userData.fbc = fbc;
+  if (body.externalId) userData.external_id = body.externalId;
 
   const payload = {
     data: [
