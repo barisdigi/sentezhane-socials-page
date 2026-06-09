@@ -102,11 +102,16 @@ export function track(event: TrackEvent): void {
     }
 
     // CAPI fires independently — once per session, even if ad blocker kills fbq.
-    // Shares the same eventID so Meta deduplicates when both fire.
+    // Shares the same eventID so Meta deduplicates when both fire. The flag is
+    // claimed *synchronously before* sending so two near-simultaneous track()
+    // calls can never each fire a CAPI request for the same eventID (which
+    // would surface as 2 server events / 1 browser event in Meta's dedup view).
     if (!serverSent) {
+      try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
       void sendToCapi(event, vcEventId).then((sent) => {
-        if (!sent) return;
-        try { sessionStorage.setItem('vc_server_sent', '1'); } catch { /* noop */ }
+        if (sent) return;
+        // Send failed — release the claim so a later click can retry.
+        try { sessionStorage.removeItem('vc_server_sent'); } catch { /* noop */ }
       });
     }
   }
