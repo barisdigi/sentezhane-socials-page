@@ -109,6 +109,27 @@ function rawQueryParam(url: string, key: string): string | undefined {
 }
 
 /**
+ * Returns the real end-user IP address. On Cloudflare the authoritative client
+ * IP is exposed via `cf-connecting-ip` (or `true-client-ip` on Enterprise);
+ * `clientAddress` and the proxy chain can resolve to a shared edge IP that Meta
+ * flags as "associated with multiple users", so those are only used as a last
+ * resort. The first hop of `x-forwarded-for` is the originating client.
+ */
+function deriveClientIp(
+  headers: Headers,
+  clientAddress: string | undefined,
+): string | undefined {
+  const cfIp = headers.get('cf-connecting-ip') || headers.get('true-client-ip');
+  if (cfIp) return cfIp.trim();
+  const forwarded = headers.get('x-forwarded-for');
+  if (forwarded) {
+    const first = forwarded.split(',')[0]?.trim();
+    if (first) return first;
+  }
+  return clientAddress || undefined;
+}
+
+/**
  * Returns the Meta click identifier (`fbc`). Uses the value forwarded from the
  * browser when present, otherwise reconstructs it from the `fbclid` query
  * parameter on the event source URL so CAPI never sends an empty `fbc`. The
@@ -161,7 +182,7 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   console.log('[capi] forwarding event', metaEvent.eventName, body.eventId, 'test_code=', env.META_TEST_EVENT_CODE || '(none)');
 
   const ua = request.headers.get('user-agent') || '';
-  const ip = clientAddress || request.headers.get('cf-connecting-ip') || '';
+  const ip = deriveClientIp(request.headers, clientAddress);
 
   const userData: Record<string, unknown> = {};
   if (ip) userData.client_ip_address = ip;
