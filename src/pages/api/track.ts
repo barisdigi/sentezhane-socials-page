@@ -3,16 +3,10 @@ import { getEntry } from 'astro:content';
 
 export const prerender = false;
 
-interface ClickDspPayload {
-  name: 'ClickDsp';
+interface TrackPayload {
+  name: string;
   eventId: string;
-  params: {
-    dsp: string;
-    releaseSlug: string;
-    trackSlug?: string;
-    lang?: string;
-    placement?: string;
-  };
+  params: Record<string, string | number | undefined>;
   url?: string;
   fbp?: string;
   fbc?: string;
@@ -22,6 +16,72 @@ interface ClickDspPayload {
 interface RuntimeEnv {
   META_CAPI_TOKEN?: string;
   META_TEST_EVENT_CODE?: string;
+}
+
+/**
+ * Maps a client `track()` event onto the Meta event name and `custom_data`
+ * payload that CAPI expects. `ClickDsp` is reported as a standard `ViewContent`
+ * (the raw `ClickDsp` event is no longer sent); everything else is forwarded as
+ * a custom event of the same name. Returns `null` for unknown events so the
+ * endpoint can reject them.
+ */
+function buildMetaEvent(
+  name: string,
+  params: Record<string, string | number | undefined>,
+): { eventName: string; customData: Record<string, unknown> } | null {
+  const releaseSlug = params.releaseSlug as string | undefined;
+  const trackSlug = params.trackSlug as string | undefined;
+  const contentId = trackSlug || releaseSlug;
+  const contentIds = contentId ? [contentId] : undefined;
+
+  switch (name) {
+    case 'ClickDsp':
+      return {
+        eventName: 'ViewContent',
+        customData: {
+          content_name: contentId,
+          content_category: params.dsp,
+          content_type: 'music',
+          content_ids: contentIds,
+          value: 1,
+          currency: 'TRY',
+          dsp: params.dsp,
+          placement: params.placement || 'inline',
+          lang: params.lang,
+        },
+      };
+    case 'VideoPlay':
+      return {
+        eventName: 'VideoPlay',
+        customData: {
+          content_name: contentId,
+          content_type: 'music',
+          content_ids: contentIds,
+          lang: params.lang,
+        },
+      };
+    case 'Share':
+      return {
+        eventName: 'Share',
+        customData: {
+          content_name: contentId,
+          content_type: 'music',
+          content_ids: contentIds,
+          network: params.network,
+          lang: params.lang,
+        },
+      };
+    case 'Engaged15s':
+      return {
+        eventName: 'Engaged15s',
+        customData: {
+          threshold_ms: params.thresholdMs,
+          lang: params.lang,
+        },
+      };
+    default:
+      return null;
+  }
 }
 
 /**
@@ -57,17 +117,23 @@ function deriveFbc(rawFbc: string | undefined, url: string | undefined): string 
 }
 
 export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
-  let body: ClickDspPayload;
+  let body: TrackPayload;
   try {
-    body = (await request.json()) as ClickDspPayload;
+    body = (await request.json()) as TrackPayload;
   } catch (err) {
     console.error('[capi] body json parse failed', err);
     return new Response(null, { status: 204 });
   }
 
   
-  if (!body || body.name !== 'ClickDsp' || !body.eventId || !body.params) {
+  if (!body || !body.name || !body.eventId || !body.params) {
     console.warn('[capi] payload shape rejected', body);
+    return new Response(null, { status: 204 });
+  }
+
+  const metaEvent = buildMetaEvent(body.name, body.params);
+  if (!metaEvent) {
+    console.warn('[capi] unknown event rejected', body.name);
     return new Response(null, { status: 204 });
   }
 
@@ -85,10 +151,8 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     return new Response(null, { status: 204 });
   }
 
-  console.log('[capi] forwarding event', body.eventId, 'test_code=', env.META_TEST_EVENT_CODE || '(none)');
+  console.log('[capi] forwarding event', metaEvent.eventName, body.eventId, 'test_code=', env.META_TEST_EVENT_CODE || '(none)');
 
-  const p = body.params;
-  const contentId = p.trackSlug || p.releaseSlug;
   const ua = request.headers.get('user-agent') || '';
   const ip = clientAddress || request.headers.get('cf-connecting-ip') || '';
 
@@ -103,22 +167,13 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const payload = {
     data: [
       {
-        event_name: 'ViewContent',
+        event_name: metaEvent.eventName,
         event_time: Math.floor(Date.now() / 1000),
         event_id: body.eventId,
         event_source_url: body.url,
         action_source: 'website',
         user_data: userData,
-        custom_data: {
-          content_name: contentId,
-          content_category: p.dsp,
-          content_type: 'music',
-          content_ids: [contentId],
-          value: 1,
-          currency: 'TRY',
-          dsp: p.dsp,
-          placement: p.placement || 'inline',
-        },
+        custom_data: metaEvent.customData,
       },
     ],
     ...(env.META_TEST_EVENT_CODE ? { test_event_code: env.META_TEST_EVENT_CODE } : {}),

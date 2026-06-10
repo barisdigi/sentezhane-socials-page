@@ -7,7 +7,8 @@ declare global {
 export type TrackEvent =
   | { name: 'ClickDsp'; params: { dsp: string; releaseSlug: string; trackSlug?: string; lang?: string; placement?: string } }
   | { name: 'VideoPlay'; params: { releaseSlug: string; trackSlug?: string; lang?: string } }
-  | { name: 'Share'; params: { network: string; releaseSlug: string; trackSlug?: string; lang?: string } };
+  | { name: 'Share'; params: { network: string; releaseSlug: string; trackSlug?: string; lang?: string } }
+  | { name: 'Engaged15s'; params: { lang?: string; thresholdMs?: number } };
 
 function genEventId(): string {
   try {
@@ -58,14 +59,11 @@ function getExternalId(): string | undefined {
 
 export function track(event: TrackEvent): void {
   if (typeof window === 'undefined') return;
-  const eventId = genEventId();
   const fbq = typeof window.fbq === 'function' ? window.fbq : null;
 
-  // Browser pixel events — skipped when ad blocker kills fbevents.js
-  if (fbq) {
-    fbq('trackCustom', event.name, event.params, { eventID: eventId });
-  }
-
+  // A DSP click is reported to Meta as a single ViewContent (browser + CAPI),
+  // deduplicated once per session. The raw `ClickDsp` custom event is no longer
+  // emitted — ViewContent supersedes it.
   if (event.name === 'ClickDsp') {
     const p = event.params;
     const contentId = p.trackSlug || p.releaseSlug;
@@ -114,7 +112,16 @@ export function track(event: TrackEvent): void {
         try { sessionStorage.removeItem('vc_server_sent'); } catch { /* noop */ }
       });
     }
+    return;
   }
+
+  // Every other event is mirrored to both the browser Pixel and CAPI, sharing a
+  // single event id so Meta deduplicates the two halves.
+  const eventId = genEventId();
+  if (fbq) {
+    fbq('trackCustom', event.name, event.params, { eventID: eventId });
+  }
+  void sendToCapi(event, eventId);
 }
 
 function readCookie(name: string): string | undefined {
@@ -231,10 +238,8 @@ export function initEngagementTimer(thresholdMs = 15000): void {
   const fire = () => {
     if (engagementFired) return;
     engagementFired = true;
-    if (typeof window.fbq === 'function') {
-      const lang = document.documentElement.lang || undefined;
-      window.fbq('trackCustom', 'Engaged15s', { lang, thresholdMs });
-    }
+    const lang = document.documentElement.lang || undefined;
+    track({ name: 'Engaged15s', params: { lang, thresholdMs } });
   };
 
   const foregroundMs = () => elapsed + (active ? Date.now() - lastResume : 0);
