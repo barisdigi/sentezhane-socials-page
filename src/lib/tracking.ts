@@ -5,6 +5,7 @@ declare global {
 }
 
 export type TrackEvent =
+  | { name: 'PageView'; params: { lang?: string } }
   | { name: 'ClickDsp'; params: { dsp: string; releaseSlug: string; trackSlug?: string; lang?: string; placement?: string } }
   | { name: 'VideoPlay'; params: { releaseSlug: string; trackSlug?: string; lang?: string } }
   | { name: 'Share'; params: { network: string; releaseSlug: string; trackSlug?: string; lang?: string } }
@@ -55,6 +56,22 @@ function getExternalId(): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Fires a standard `PageView` to both the browser Pixel and CAPI, sharing a
+ * single event id so Meta deduplicates the two halves. Pixel initialization
+ * (`fbq('init', ...)`) happens in MetaPixel.astro before this runs.
+ */
+export function trackPageView(): void {
+  if (typeof window === 'undefined') return;
+  const fbq = typeof window.fbq === 'function' ? window.fbq : null;
+  const lang = typeof document !== 'undefined' ? document.documentElement.lang || undefined : undefined;
+  const eventId = genEventId();
+  if (fbq) {
+    fbq('track', 'PageView', {}, { eventID: eventId });
+  }
+  void sendToCapi({ name: 'PageView', params: { lang } }, eventId);
 }
 
 export function track(event: TrackEvent): void {

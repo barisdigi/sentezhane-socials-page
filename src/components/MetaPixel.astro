@@ -30,7 +30,10 @@ const pixelId = artist?.data.metaPixelId;
       } catch (e) { extId = undefined; }
       if (extId) { fbq('init', pixelId, { external_id: extId }); }
       else { fbq('init', pixelId); }
-      fbq('track', 'PageView');
+    </script>
+    <script>
+      import { trackPageView } from '../lib/tracking';
+      trackPageView();
     </script>
     <noscript>
       <img height="1" width="1" style="display:none"

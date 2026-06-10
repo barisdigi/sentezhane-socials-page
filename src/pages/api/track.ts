@@ -35,6 +35,13 @@ function buildMetaEvent(
   const contentIds = contentId ? [contentId] : undefined;
 
   switch (name) {
+    case 'PageView':
+      return {
+        eventName: 'PageView',
+        customData: {
+          lang: params.lang,
+        },
+      };
     case 'ClickDsp':
       return {
         eventName: 'ViewContent',
